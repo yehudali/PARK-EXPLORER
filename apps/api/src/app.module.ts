@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TRPCModule } from 'nestjs-trpc';
-import { HealthRouter } from './trpc/app.router';
+import { HealthRouter } from './health/health.router';
 
 @Module({
   imports: [TRPCModule.forRoot({})],
