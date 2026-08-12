@@ -2,7 +2,7 @@ import { trpc } from './lib/trpc'
 import {Button} from './components/ui/button'
 function App() {
 
-  const healthResponse = trpc.health.useQuery(undefined, {enabled: false})
+  const healthResponse = trpc.healthRouter.health.useQuery(undefined, {enabled: false})
 
   function handleClick() {
     healthResponse.refetch()

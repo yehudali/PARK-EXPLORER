@@ -1,9 +1,15 @@
-import { router, publicProcedure } from './trpc';
+import { Router, Query } from 'nestjs-trpc';
+import { z } from 'zod';
 
-export const appRouter = router({
-  health: publicProcedure.query(() => {
-    return { status: 'ok', message: 'Hello 1!!' };
-  }),
+const healthOutput = z.object({
+  status: z.string(),
+  message: z.string(),
 });
 
-export type AppRouter = typeof appRouter;
+@Router()
+export class HealthRouter {
+  @Query({ output: healthOutput })
+  health() {
+    return { status: 'ok', message: 'Hello!!' };
+  }
+}
