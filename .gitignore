@@ -38,3 +38,5 @@ yarn-error.log*
 *.pem
 
 *.tsbuildinfo
+CLAUDE.md
+stage-b-tracking.md
