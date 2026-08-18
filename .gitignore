@@ -39,4 +39,6 @@ yarn-error.log*
 
 *.tsbuildinfo
 CLAUDE.md
-stage-b-tracking.md
+
+# קבצים אישיים, מעקב ומסמכי דרישות — לא נכנסים ל-git.
+docs/
