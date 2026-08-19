@@ -13,9 +13,17 @@ import { z } from "zod";
 
 const t = initTRPC.create();
 const publicProcedure = t.procedure;
+import { citiesByRegionInput } from "../cities/city.input.js";
+import { citySchema } from "../cities/city.output.js";
 import { regionSchema } from "../regions/region.output.js";
 
 const appRouter = t.router({
+  citiesRouter: t.router({
+    findByRegion: publicProcedure
+      .input(citiesByRegionInput)
+      .output(z.array(citySchema))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    }),
   regionsRouter: t.router({
     findAll: publicProcedure
       .output(z.array(regionSchema))
