@@ -8,25 +8,27 @@
  * Learn more: https://nestjs-trpc.io
  */
 
-import { initTRPC } from '@trpc/server';
-import { z } from 'zod';
+import { initTRPC } from "@trpc/server";
+import { z } from "zod";
 
 const t = initTRPC.create();
 const publicProcedure = t.procedure;
+import { regionSchema } from "../regions/region.output.js";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const appRouter = t.router({
+  regionsRouter: t.router({
+    findAll: publicProcedure
+      .output(z.array(regionSchema))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    }),
   healthRouter: t.router({
     health: publicProcedure
-      .output(
-        z.object({
-          status: z.string(),
-          message: z.string(),
-        }),
-      )
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      .query(() => 'PLACEHOLDER_DO_NOT_REMOVE' as any),
-  }),
+      .output(z.object({
+  status: z.string(),
+  message: z.string(),
+}))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    })
 });
 
 export type AppRouter = typeof appRouter;
