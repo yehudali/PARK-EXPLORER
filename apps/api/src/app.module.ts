@@ -4,6 +4,7 @@ import { HealthRouter } from './router/health/health.router';
 import { DatabaseModule } from './database/database.module';
 import { RegionsModule } from './regions/regions.module';
 import { CitiesModule } from './cities/cities.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { CitiesModule } from './cities/cities.module';
     DatabaseModule,
     RegionsModule,
     CitiesModule,
+    AuthModule,
   ],
   providers: [HealthRouter],
 })
