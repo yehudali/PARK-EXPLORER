@@ -4,6 +4,7 @@ import { DatabaseModule } from '../database/database.module';
 import { PasswordService } from './password.service';
 import { AuthService } from './auth.service';
 import { AuthRouter } from './auth.router';
+import { TRPCContextService } from './trpc.context';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { AuthRouter } from './auth.router';
       signOptions: { expiresIn: `10m` },
     }),
   ],
-  providers: [PasswordService, AuthService, AuthRouter],
+  providers: [PasswordService, AuthService, AuthRouter, TRPCContextService],
 })
 export class AuthModule {}
