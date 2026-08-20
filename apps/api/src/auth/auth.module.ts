@@ -11,7 +11,7 @@ import { TRPCContextService } from './trpc.context';
     DatabaseModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: `10m` },
+      signOptions: { expiresIn: `15m` },
     }),
   ],
   providers: [PasswordService, AuthService, AuthRouter, TRPCContextService],
