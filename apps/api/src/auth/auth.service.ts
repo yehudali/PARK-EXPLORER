@@ -1,0 +1,81 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { TRPCError } from '@trpc/server';
+import { eq } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { z } from 'zod';
+
+import { CONNECT_TO_DB } from '../database/database.providers';
+import { users } from '../database/schema';
+import * as schema from '../database/schema';
+import { PasswordService } from './password.service';
+import { registerInput } from './register.input';
+import { loginInput } from './login.input';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    @Inject(CONNECT_TO_DB)
+    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly passwordService: PasswordService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async isUniqueEmail(email: string) {
+    const rows = await this.db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+    return rows.length === 0;
+  }
+
+  async register(input: z.infer<typeof registerInput>) {
+    const unique = await this.isUniqueEmail(input.email);
+    if (!unique) {
+      throw new TRPCError({ code: 'CONFLICT' });
+    }
+
+    const passwordHash = await this.passwordService.hashPassword(
+      input.password,
+    );
+    const [user] = await this.db
+      .insert(users)
+      .values({
+        name: input.name,
+        email: input.email,
+        passwordHash,
+      })
+      .returning();
+
+    return this.issueToken(user.id);
+  }
+
+  async login(input: z.infer<typeof loginInput>) {
+    const [user] = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.email, input.email))
+      .limit(1);
+
+    if (!user) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+
+    const isValid = await this.passwordService.verifyPassword(
+      input.password,
+      user.passwordHash,
+    );
+
+    if (!isValid) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+
+    return this.issueToken(user.id);
+  }
+
+  private issueToken(userId: string) {
+    const token = this.jwtService.sign({ sub: userId });
+    return { token };
+  }
+}

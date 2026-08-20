@@ -13,11 +13,24 @@ import { z } from "zod";
 
 const t = initTRPC.create();
 const publicProcedure = t.procedure;
+import { registerInput } from "../auth/register.input.js";
+import { authOutput } from "../auth/auth.output.js";
+import { loginInput } from "../auth/login.input.js";
 import { citiesByRegionInput } from "../cities/city.input.js";
 import { citySchema } from "../cities/city.output.js";
 import { regionSchema } from "../regions/region.output.js";
 
 const appRouter = t.router({
+  authRouter: t.router({
+    register: publicProcedure
+      .input(registerInput)
+      .output(authOutput)
+      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    login: publicProcedure
+      .input(loginInput)
+      .output(authOutput)
+      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    }),
   citiesRouter: t.router({
     findByRegion: publicProcedure
       .input(citiesByRegionInput)
