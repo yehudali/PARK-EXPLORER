@@ -10,7 +10,7 @@ import { AuthRouter } from './auth.router';
     DatabaseModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: `5m` },
+      signOptions: { expiresIn: `10m` },
     }),
   ],
   providers: [PasswordService, AuthService, AuthRouter],
