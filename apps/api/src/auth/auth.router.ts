@@ -1,10 +1,19 @@
-import { Input, Mutation, Router } from 'nestjs-trpc';
 import { z } from 'zod';
 
 import { authOutput } from './auth.output';
+import { meOutput } from './me.output';
 import { AuthService } from './auth.service';
 import { loginInput } from './login.input';
 import { registerInput } from './register.input';
+import {
+  Ctx,
+  Input,
+  Mutation,
+  Query,
+  Router,
+  UseMiddlewares,
+} from 'nestjs-trpc';
+import { AuthMiddleware } from './auth.middleware';
 
 @Router()
 export class AuthRouter {
@@ -18,5 +27,13 @@ export class AuthRouter {
   @Mutation({ input: loginInput, output: authOutput })
   login(@Input() input: z.infer<typeof loginInput>) {
     return this.authService.login(input);
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Query({ output: meOutput })
+  me(@Ctx() ctx: unknown) {
+    // ctx is typed unknown by nestjs-trpc; userId is added by AuthMiddleware
+    const { userId } = ctx as { userId: string };
+    return this.authService.getCurrentUser(userId);
   }
 }

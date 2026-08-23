@@ -74,6 +74,20 @@ export class AuthService {
     return this.issueToken(user.id);
   }
 
+  async getCurrentUser(userId: string) {
+    const [user] = await this.db
+      .select({ id: users.id, name: users.name, email: users.email })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      throw new TRPCError({ code: 'NOT_FOUND' });
+    }
+
+    return user;
+  }
+
   private issueToken(userId: string) {
     const token = this.jwtService.sign({ sub: userId });
     return { token };
