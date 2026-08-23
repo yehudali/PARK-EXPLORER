@@ -1,11 +1,13 @@
 import { trpc } from './lib/trpc'
 import {Button} from './components/ui/button'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { useAuthStore } from './stores/auth.store'
 
 function App() {
 
   const authState = useAuthStore()
+  const queryClient = useQueryClient()
   const loginMutation = trpc.authRouter.login.useMutation()
   const meQuery = trpc.authRouter.me.useQuery(undefined, { enabled: false })
 
@@ -37,12 +39,18 @@ function App() {
   )
 }
 
+  function handleLogout() {
+    useAuthStore.getState().logout()
+    queryClient.clear()
+  }
+
     return (
     <div className="p-4">
 
 
       <Button variant="link" onClick={handleClick}>Click me</Button>
       <Button variant="default" onClick={handleLogin}>Login</Button>
+      <Button variant="destructive" onClick={handleLogout}>Logout</Button>
 
       <p>{JSON.stringify(healthResponse.data, null)}</p>
       <p>{JSON.stringify(regionsResponse.data, null)}</p>
