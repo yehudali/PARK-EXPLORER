@@ -1,15 +1,10 @@
 import { trpc } from './lib/trpc'
 import {Button} from './components/ui/button'
-import { useQueryClient } from '@tanstack/react-query'
-
-import { useAuthStore } from './stores/auth.store'
+import { useAuth } from './hooks/useAuth'
 
 function App() {
 
-  const authState = useAuthStore()
-  const queryClient = useQueryClient()
-  const loginMutation = trpc.authRouter.login.useMutation()
-  const meQuery = trpc.authRouter.me.useQuery(undefined, { enabled: false })
+  const { token, user, login, logout } = useAuth()
 
   const healthResponse = trpc.healthRouter.health.useQuery(undefined, {enabled: false})
   const regionsResponse = trpc.regionsRouter.findAll.useQuery(undefined, {enabled: false})
@@ -24,24 +19,7 @@ function App() {
   }
 
   function handleLogin() {
-  loginMutation.mutate(
-    { email: 'test-c5@example.com', password: '123456' },
-    {
-      onSuccess: (data) => {
-        useAuthStore.getState().setToken(data.token)
-        meQuery.refetch().then((result) => {
-          if (result.data) {
-            useAuthStore.getState().setUser(result.data)
-          }
-        })
-      },
-    },
-  )
-}
-
-  function handleLogout() {
-    useAuthStore.getState().logout()
-    queryClient.clear()
+    login('test-c5@example.com', '123456')
   }
 
     return (
@@ -50,13 +28,13 @@ function App() {
 
       <Button variant="link" onClick={handleClick}>Click me</Button>
       <Button variant="default" onClick={handleLogin}>Login</Button>
-      <Button variant="destructive" onClick={handleLogout}>Logout</Button>
+      <Button variant="destructive" onClick={logout}>Logout</Button>
 
       <p>{JSON.stringify(healthResponse.data, null)}</p>
       <p>{JSON.stringify(regionsResponse.data, null)}</p>
       <p>{JSON.stringify(invalidCityInput.error?.data, null)}</p>
       <p>{JSON.stringify(missingRegionCities.data, null)}</p>
-      <p>{JSON.stringify({ token: authState.token, user: authState.user }, null)}</p>
+      <p>{JSON.stringify({ token, user }, null)}</p>
     </div>
   )
 }
