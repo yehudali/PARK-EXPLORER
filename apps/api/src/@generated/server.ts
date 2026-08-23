@@ -16,6 +16,7 @@ const publicProcedure = t.procedure;
 import { registerInput } from "../auth/register.input.js";
 import { authOutput } from "../auth/auth.output.js";
 import { loginInput } from "../auth/login.input.js";
+import { meOutput } from "../auth/me.output.js";
 import { citiesByRegionInput } from "../cities/city.input.js";
 import { citySchema } from "../cities/city.output.js";
 import { regionSchema } from "../regions/region.output.js";
@@ -29,7 +30,10 @@ const appRouter = t.router({
     login: publicProcedure
       .input(loginInput)
       .output(authOutput)
-      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    me: publicProcedure
+      .output(meOutput)
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
     }),
   citiesRouter: t.router({
     findByRegion: publicProcedure
