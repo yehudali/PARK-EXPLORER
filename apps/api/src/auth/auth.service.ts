@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -7,6 +6,7 @@ import { CONNECT_TO_DB } from '../database/database.providers';
 import { users } from '../database/schema';
 import * as schema from '../database/schema';
 import { PasswordService } from './password/password.service';
+import { TokenService } from './token/token.service';
 import type { RegisterInput, LoginInput } from './auth.schemas';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class AuthService {
     @Inject(CONNECT_TO_DB)
     private readonly db: NodePgDatabase<typeof schema>,
     private readonly passwordService: PasswordService,
-    private readonly jwtService: JwtService,
+    private readonly tokenService: TokenService,
   ) {}
 
   async register(input: RegisterInput) {
@@ -86,7 +86,7 @@ export class AuthService {
   }
 
   private issueToken(userId: string) {
-    const token = this.jwtService.sign({ sub: userId });
+    const token = this.tokenService.sign(userId);
     return { token };
   }
 }

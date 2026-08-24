@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { TRPCMiddleware, MiddlewareOptions } from 'nestjs-trpc';
-import { JwtService } from '@nestjs/jwt';
 import { TRPCError } from '@trpc/server';
+import { TokenService } from './token/token.service';
 
 @Injectable()
 export class AuthMiddleware implements TRPCMiddleware {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly tokenService: TokenService) {}
 
   async use(opts: MiddlewareOptions) {
     const { ctx, next } = opts;
@@ -20,9 +20,7 @@ export class AuthMiddleware implements TRPCMiddleware {
     const token = authHeader.replace('Bearer ', '');
 
     try {
-      // const payload = this.jwtService.verify(token);
-      // shape must match the payload signed in auth.service.ts
-      const payload = this.jwtService.verify<{ sub: string }>(token);
+      const payload = this.tokenService.verify(token);
       return next({ ctx: { userId: payload.sub } });
     } catch {
       throw new TRPCError({ code: 'UNAUTHORIZED' });
