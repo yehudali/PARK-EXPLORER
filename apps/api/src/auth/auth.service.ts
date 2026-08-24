@@ -9,8 +9,7 @@ import { CONNECT_TO_DB } from '../database/database.providers';
 import { users } from '../database/schema';
 import * as schema from '../database/schema';
 import { PasswordService } from './password.service';
-import { registerInput } from './register.input';
-import { loginInput } from './login.input';
+import { registerInput, loginInput } from './auth.schemas';
 
 @Injectable()
 export class AuthService {

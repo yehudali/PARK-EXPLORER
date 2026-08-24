@@ -1,6 +1,6 @@
 import { Router, Query } from 'nestjs-trpc';
 import { z } from 'zod';
-import { regionSchema } from './region.output';
+import { regionSchema } from './regions.schemas';
 import { RegionsService } from './regions.service';
 
 @Router()

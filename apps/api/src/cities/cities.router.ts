@@ -1,7 +1,6 @@
 import { Router, Query, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { citySchema } from './city.output';
-import { citiesByRegionInput } from './city.input';
+import { citySchema, citiesByRegionInput } from './cities.schemas';
 import { CitiesService } from './cities.service';
 
 @Router()

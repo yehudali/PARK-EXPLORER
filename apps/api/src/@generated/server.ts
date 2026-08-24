@@ -13,13 +13,9 @@ import { z } from "zod";
 
 const t = initTRPC.create();
 const publicProcedure = t.procedure;
-import { registerInput } from "../auth/register.input.js";
-import { authOutput } from "../auth/auth.output.js";
-import { loginInput } from "../auth/login.input.js";
-import { meOutput } from "../auth/me.output.js";
-import { citiesByRegionInput } from "../cities/city.input.js";
-import { citySchema } from "../cities/city.output.js";
-import { regionSchema } from "../regions/region.output.js";
+import { registerInput, authOutput, loginInput, meOutput } from "../auth/auth.schemas.js";
+import { citiesByRegionInput, citySchema } from "../cities/cities.schemas.js";
+import { regionSchema } from "../regions/regions.schemas.js";
 
 const appRouter = t.router({
   authRouter: t.router({

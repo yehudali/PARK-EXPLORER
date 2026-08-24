@@ -1,10 +1,12 @@
 import { z } from 'zod';
 
-import { authOutput } from './auth.output';
-import { meOutput } from './me.output';
+import {
+  authOutput,
+  meOutput,
+  loginInput,
+  registerInput,
+} from './auth.schemas';
 import { AuthService } from './auth.service';
-import { loginInput } from './login.input';
-import { registerInput } from './register.input';
 import {
   Ctx,
   Input,
