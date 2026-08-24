@@ -10,6 +10,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "dev": "nest start --watch",
     "check-types": "tsc --noEmit",
+    "trpc:generate": "nestjs-trpc generate",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "ts-node -r tsconfig-paths/register src/database/seed/seed.ts",
