@@ -6,7 +6,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { CONNECT_TO_DB } from '../database/database.providers';
 import { users } from '../database/schema';
 import * as schema from '../database/schema';
-import { PasswordService } from './password.service';
+import { PasswordService } from './password/password.service';
 import type { RegisterInput, LoginInput } from './auth.schemas';
 
 @Injectable()
