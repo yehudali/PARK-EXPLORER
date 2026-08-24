@@ -5,7 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { RegionsModule } from './regions/regions.module';
 import { CitiesModule } from './cities/cities.module';
 import { AuthModule } from './auth/auth.module';
-import { TRPCContextService } from './auth/trpc.context';
+import { TRPCContextService } from './trpc/trpc.context';
 
 @Module({
   imports: [
@@ -15,6 +15,6 @@ import { TRPCContextService } from './auth/trpc.context';
     CitiesModule,
     AuthModule,
   ],
-  providers: [HealthRouter],
+  providers: [HealthRouter, TRPCContextService],
 })
 export class AppModule {}

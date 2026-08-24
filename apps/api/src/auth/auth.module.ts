@@ -4,7 +4,6 @@ import { DatabaseModule } from '../database/database.module';
 import { PasswordService } from './password.service';
 import { AuthService } from './auth.service';
 import { AuthRouter } from './auth.router';
-import { TRPCContextService } from './trpc.context';
 import { AuthMiddleware } from './auth.middleware';
 import { config } from '../config/config';
 
@@ -16,12 +15,6 @@ import { config } from '../config/config';
       signOptions: { expiresIn: config.jwt.expiresIn },
     }),
   ],
-  providers: [
-    PasswordService,
-    AuthService,
-    AuthRouter,
-    TRPCContextService,
-    AuthMiddleware,
-  ],
+  providers: [PasswordService, AuthService, AuthRouter, AuthMiddleware],
 })
 export class AuthModule {}
