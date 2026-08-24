@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import { config } from './src/config/config';
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
@@ -6,6 +6,6 @@ export default defineConfig({
   schema: './src/database/schema/index.ts',
   out: './drizzle',
   dbCredentials: {
-    url: process.env.DATABASE_URL_UNPOOLED!,
+    url: config.database.migrationUrl,
   },
 });

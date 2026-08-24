@@ -6,13 +6,14 @@ import { AuthService } from './auth.service';
 import { AuthRouter } from './auth.router';
 import { TRPCContextService } from './trpc.context';
 import { AuthMiddleware } from './auth.middleware';
+import { config } from '../config/config';
 
 @Module({
   imports: [
     DatabaseModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: `15m` },
+      secret: config.jwt.secret,
+      signOptions: { expiresIn: config.jwt.expiresIn },
     }),
   ],
   providers: [

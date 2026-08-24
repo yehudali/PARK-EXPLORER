@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { ConnToDbProvider } from '../database.providers';
 import { regions as regionsTable, cities as citiesTable } from '../schema';
 
