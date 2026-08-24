@@ -18,15 +18,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async isUniqueEmail(email: string) {
-    const rows = await this.db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
-    return rows.length === 0;
-  }
-
   async register(input: RegisterInput) {
     const unique = await this.isUniqueEmail(input.email);
     if (!unique) {
@@ -83,6 +74,15 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  private async isUniqueEmail(email: string) {
+    const rows = await this.db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+    return rows.length === 0;
   }
 
   private issueToken(userId: string) {
