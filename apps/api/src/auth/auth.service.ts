@@ -3,13 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { z } from 'zod';
-
 import { CONNECT_TO_DB } from '../database/database.providers';
 import { users } from '../database/schema';
 import * as schema from '../database/schema';
 import { PasswordService } from './password.service';
-import { registerInput, loginInput } from './auth.schemas';
+import type { RegisterInput, LoginInput } from './auth.schemas';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +27,7 @@ export class AuthService {
     return rows.length === 0;
   }
 
-  async register(input: z.infer<typeof registerInput>) {
+  async register(input: RegisterInput) {
     const unique = await this.isUniqueEmail(input.email);
     if (!unique) {
       throw new TRPCError({ code: 'CONFLICT' });
@@ -50,7 +48,7 @@ export class AuthService {
     return this.issueToken(user.id);
   }
 
-  async login(input: z.infer<typeof loginInput>) {
+  async login(input: LoginInput) {
     const [user] = await this.db
       .select()
       .from(users)

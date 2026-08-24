@@ -6,10 +6,14 @@ export const registerInput = z.object({
   email: z.email(),
 });
 
+export type RegisterInput = z.infer<typeof registerInput>;
+
 export const loginInput = z.object({
   email: z.email(),
   password: z.string().min(3),
 });
+
+export type LoginInput = z.infer<typeof loginInput>;
 
 export const authOutput = z.object({
   token: z.string(),

@@ -1,10 +1,10 @@
-import { z } from 'zod';
-
 import {
   authOutput,
   meOutput,
   loginInput,
   registerInput,
+  type LoginInput,
+  type RegisterInput,
 } from './auth.schemas';
 import { AuthService } from './auth.service';
 import {
@@ -22,12 +22,12 @@ export class AuthRouter {
   constructor(private readonly authService: AuthService) {}
 
   @Mutation({ input: registerInput, output: authOutput })
-  register(@Input() input: z.infer<typeof registerInput>) {
+  register(@Input() input: RegisterInput) {
     return this.authService.register(input);
   }
 
   @Mutation({ input: loginInput, output: authOutput })
-  login(@Input() input: z.infer<typeof loginInput>) {
+  login(@Input() input: LoginInput) {
     return this.authService.login(input);
   }
 
