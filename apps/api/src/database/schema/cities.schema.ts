@@ -8,9 +8,9 @@ export const cities = pgTable(
     name: text('name').notNull(),
     regionId: uuid('region_id')
       .notNull()
-      // מחיקת אזור עם ערים תיכשל, לא תמחק בשקט
+      // Deleting a region that still has cities fails, instead of deleting silently
       .references(() => regions.id, { onDelete: 'restrict' }),
   },
-  // שם עיר ייחודי בתוך אזור, לא ברמת המדינה
+  // City name is unique within a region, not country-wide
   (table) => [unique().on(table.name, table.regionId)],
 );

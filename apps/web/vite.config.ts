@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    // בא לפתור את הבעיה עם shadcn. הוא אומר ל-Vite: בכל פעם שקוד כלשהו כותב ייבוא שמתחיל בסימן שטרודל, תתרגם את זה בפועל לנתיב המלא של תיקיית src
+    // Fixes the shadcn import problem. Tells Vite: whenever code writes an import starting with the at sign, resolve it to the full path of the src directory
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
     },

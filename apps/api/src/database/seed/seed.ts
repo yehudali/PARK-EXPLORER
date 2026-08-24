@@ -10,7 +10,7 @@ async function seed() {
   await db
     .insert(regionsTable)
     .values(regions.map((name) => ({ name })))
-    // במצב של טעינה חוזרת, אלך תעשה כלום...:
+    // On a repeated run, do nothing:
     .onConflictDoNothing();
 
   const existingRegions = await db.select().from(regionsTable);
