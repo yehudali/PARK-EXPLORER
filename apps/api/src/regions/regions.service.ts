@@ -1,15 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import type { Database } from '@park-explorer/db';
+import { regions } from '@park-explorer/db/schema';
 import { CONNECT_TO_DB } from '../database/database.providers';
-import { regions } from '../database/schema';
-
-import * as schema from '../database/schema';
 
 @Injectable()
 export class RegionsService {
-  constructor(
-    @Inject(CONNECT_TO_DB) private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject(CONNECT_TO_DB) private readonly db: Database) {}
 
   async findAll() {
     return this.db.select().from(regions);

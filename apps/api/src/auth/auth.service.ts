@@ -1,10 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { eq } from 'drizzle-orm';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import type { Database } from '@park-explorer/db';
+import { users } from '@park-explorer/db/schema';
 import { CONNECT_TO_DB } from '../database/database.providers';
-import { users } from '../database/schema';
-import * as schema from '../database/schema';
 import { PasswordService } from './password/password.service';
 import { TokenService } from './token/token.service';
 import type { RegisterInput, LoginInput } from './auth.schemas';
@@ -13,7 +12,7 @@ import type { RegisterInput, LoginInput } from './auth.schemas';
 export class AuthService {
   constructor(
     @Inject(CONNECT_TO_DB)
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: Database,
     private readonly passwordService: PasswordService,
     private readonly tokenService: TokenService,
   ) {}

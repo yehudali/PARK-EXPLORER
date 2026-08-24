@@ -1,11 +1,23 @@
-import { ConnToDbProvider } from '../database.providers';
+import { resolve } from 'node:path';
+import { config as loadEnv } from 'dotenv';
+
+import { createDatabase } from '../index';
 import { regions as regionsTable, cities as citiesTable } from '../schema';
 
 import { regions } from './data/regions';
 import { cities } from './data/cities';
 
+// Same as drizzle.config.ts: a standalone program reads the root .env itself.
+loadEnv({ path: resolve(process.cwd(), '../../.env') });
+
 async function seed() {
-  const db = ConnToDbProvider.useFactory();
+  const connectionString = process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    throw new Error('Missing environment variable: DATABASE_URL');
+  }
+
+  const db = createDatabase(connectionString);
 
   await db
     .insert(regionsTable)

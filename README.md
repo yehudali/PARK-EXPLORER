@@ -4,6 +4,7 @@
 
 - **`apps/web`** — Vite + React 19 + TypeScript, Tailwind CSS v4, shadcn/ui
 - **`apps/api`** — NestJS + `nestjs-trpc` (tRPC דרך מערכת המודולים של Nest) + Drizzle ORM מול Postgres (Neon)
+- **`packages/db`** — חבילת המסד המשותפת: סכימת Drizzle, מיגרציות וזריעה. ללא תלות בפריימוורק כלשהו
 
 פרויקט לימוד — לפירוט מלא על הארכיטקטורה, ההחלטות ולמה, ומדריך לעבור על הקוד בעצמך, ראו [מדריך-הפרויקט-שלבים-א-ב.md](docs/מדריך-הפרויקט-שלבים-א-ב.md) (מקומי — התיקייה `docs/` מסוננת מ-git).
 
@@ -13,7 +14,7 @@
 npm install
 ```
 
-צריך גם `apps/api/.env` עם ארבעה משתנים (ראו `apps/api/.env.example`):
+צריך גם קובץ `.env` בשורש המונוריפו, עם ארבעה משתנים (ראו `.env.example`). קובץ אחד משרת גם את השרת וגם את חבילת המסד:
 
 ```
 DATABASE_URL=            # Neon, pooled — לשרת בזמן ריצה
