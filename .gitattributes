@@ -1,0 +1,17 @@
+# Normalize every text file to LF, both in the repository and on disk.
+# The repository is already 100% LF, so this changes no file content —
+# it only stops the working tree from drifting to CRLF and keeps git,
+# prettier and the nestjs-trpc generator from disagreeing about endings.
+* text=auto eol=lf
+
+# Byte-for-byte files, never converted.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.pdf  binary
+*.docx binary
+*.woff binary
+*.woff2 binary
