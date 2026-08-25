@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { TRPCError } from '@trpc/server';
+import {
+  ForbiddenError,
+  InvalidInputError,
+  NotFoundError,
+} from '../common/domain.errors';
 import { eq, getTableColumns } from 'drizzle-orm';
 import type { Database } from '@park-explorer/db';
 import { parks, cities } from '@park-explorer/db/schema';
@@ -35,7 +39,7 @@ export class ParksService {
       .limit(1);
 
     if (!park) {
-      throw new TRPCError({ code: 'NOT_FOUND' });
+      throw new NotFoundError();
     }
 
     return this.toPark(park);
@@ -91,10 +95,7 @@ export class ParksService {
       .limit(1);
 
     if (!city) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'cityId does not match an existing city',
-      });
+      throw new InvalidInputError('cityId does not match an existing city');
     }
   }
 
@@ -108,11 +109,11 @@ export class ParksService {
       .limit(1);
 
     if (!existing) {
-      throw new TRPCError({ code: 'NOT_FOUND' });
+      throw new NotFoundError();
     }
 
     if (existing.creatorId !== userId) {
-      throw new TRPCError({ code: 'FORBIDDEN' });
+      throw new ForbiddenError();
     }
   }
 

@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { TRPCError } from '@trpc/server';
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../common/domain.errors';
 import { eq } from 'drizzle-orm';
 import type { Database } from '@park-explorer/db';
 import { users } from '@park-explorer/db/schema';
@@ -20,7 +24,7 @@ export class AuthService {
   async register(input: RegisterInput) {
     const unique = await this.isUniqueEmail(input.email);
     if (!unique) {
-      throw new TRPCError({ code: 'CONFLICT' });
+      throw new ConflictError();
     }
 
     const passwordHash = await this.passwordService.hashPassword(
@@ -46,7 +50,7 @@ export class AuthService {
       .limit(1);
 
     if (!user) {
-      throw new TRPCError({ code: 'UNAUTHORIZED' });
+      throw new UnauthorizedError();
     }
 
     const isValid = await this.passwordService.verifyPassword(
@@ -55,7 +59,7 @@ export class AuthService {
     );
 
     if (!isValid) {
-      throw new TRPCError({ code: 'UNAUTHORIZED' });
+      throw new UnauthorizedError();
     }
 
     return this.issueToken(user.id);
@@ -69,7 +73,7 @@ export class AuthService {
       .limit(1);
 
     if (!user) {
-      throw new TRPCError({ code: 'NOT_FOUND' });
+      throw new NotFoundError();
     }
 
     return user;
