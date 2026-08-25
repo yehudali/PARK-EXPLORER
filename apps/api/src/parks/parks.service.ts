@@ -52,11 +52,35 @@ export class ParksService {
     return this.findById(created.id);
   }
 
-  // The ownership rule lives here, not in the router: it stays true even with
-  // no HTTP involved. Missing and forbidden are deliberately different codes.
   async update(input: UpdateParkInput, userId: string) {
     const { id, ...changes } = input;
 
+    await this.assertOwner(id, userId);
+
+    // defaultNow only fires on insert, so the update timestamp is set by hand.
+    await this.db
+      .update(parks)
+      .set({ ...changes, updatedAt: new Date() })
+      .where(eq(parks.id, id));
+
+    return this.findById(id);
+  }
+
+  async remove(id: string, userId: string) {
+    await this.assertOwner(id, userId);
+
+    // Rows in park_images go with it: their foreign key declares onDelete
+    // cascade, so the database removes them without being asked.
+    await this.db.delete(parks).where(eq(parks.id, id));
+
+    // The park no longer exists, so returning it would be a lie. The id is
+    // enough for the client to drop it from whatever it is showing.
+    return { id };
+  }
+
+  // The ownership rule lives here, not in the router: it stays true even with
+  // no HTTP involved. Missing and forbidden are deliberately different codes.
+  private async assertOwner(id: string, userId: string) {
     const [existing] = await this.db
       .select({ creatorId: parks.creatorId })
       .from(parks)
@@ -70,14 +94,6 @@ export class ParksService {
     if (existing.creatorId !== userId) {
       throw new TRPCError({ code: 'FORBIDDEN' });
     }
-
-    // defaultNow only fires on insert, so the update timestamp is set by hand.
-    await this.db
-      .update(parks)
-      .set({ ...changes, updatedAt: new Date() })
-      .where(eq(parks.id, id));
-
-    return this.findById(id);
   }
 
   // Drizzle returns timestamp columns as Date objects, while the output schema

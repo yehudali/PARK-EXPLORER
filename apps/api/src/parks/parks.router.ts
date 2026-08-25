@@ -12,6 +12,7 @@ import {
   parkByIdInput,
   createParkInput,
   updateParkInput,
+  deletedParkOutput,
   type ParkByIdInput,
   type CreateParkInput,
   type UpdateParkInput,
@@ -46,5 +47,12 @@ export class ParksRouter {
   update(@Input() input: UpdateParkInput, @Ctx() ctx: unknown) {
     const { userId } = ctx as { userId: string };
     return this.parksService.update(input, userId);
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Mutation({ input: parkByIdInput, output: deletedParkOutput })
+  remove(@Input() input: ParkByIdInput, @Ctx() ctx: unknown) {
+    const { userId } = ctx as { userId: string };
+    return this.parksService.remove(input.id, userId);
   }
 }

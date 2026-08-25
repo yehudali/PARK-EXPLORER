@@ -51,3 +51,8 @@ export const updateParkInput = createParkInput
   });
 
 export type UpdateParkInput = z.infer<typeof updateParkInput>;
+
+// Deletion cannot return a park, because there is no longer one to return.
+export const deletedParkOutput = z.object({
+  id: z.uuid(),
+});
