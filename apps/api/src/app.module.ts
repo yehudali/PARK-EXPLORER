@@ -6,6 +6,7 @@ import { RegionsModule } from './regions/regions.module';
 import { CitiesModule } from './cities/cities.module';
 import { AuthModule } from './auth/auth.module';
 import { TRPCContextService } from './trpc/trpc.context';
+import { ParksModule } from './parks/parks.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { TRPCContextService } from './trpc/trpc.context';
     RegionsModule,
     CitiesModule,
     AuthModule,
+    ParksModule,
   ],
   providers: [HealthRouter, TRPCContextService],
 })

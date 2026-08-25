@@ -15,6 +15,7 @@ const t = initTRPC.create();
 const publicProcedure = t.procedure;
 import { registerInput, authOutput, loginInput, meOutput } from "../auth/auth.schemas.js";
 import { citiesByRegionInput, citySchema } from "../cities/cities.schemas.js";
+import { parkSchema, parkByIdInput } from "../parks/parks.schemas.js";
 import { regionSchema } from "../regions/regions.schemas.js";
 
 const appRouter = t.router({
@@ -35,6 +36,15 @@ const appRouter = t.router({
     findByRegion: publicProcedure
       .input(citiesByRegionInput)
       .output(z.array(citySchema))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    }),
+  parksRouter: t.router({
+    findAll: publicProcedure
+      .output(z.array(parkSchema))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    findById: publicProcedure
+      .input(parkByIdInput)
+      .output(parkSchema)
       .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
     }),
   regionsRouter: t.router({
