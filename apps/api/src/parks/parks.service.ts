@@ -44,6 +44,8 @@ export class ParksService {
   // The creator is a separate argument on purpose: it comes from the verified
   // token, not from the request body, so it must not be spreadable over.
   async create(input: CreateParkInput, creatorId: string) {
+    await this.assertCityExists(input.cityId);
+
     const [created] = await this.db
       .insert(parks)
       .values({ ...input, creatorId })
@@ -57,11 +59,12 @@ export class ParksService {
 
     await this.assertOwner(id, userId);
 
-    // defaultNow only fires on insert, so the update timestamp is set by hand.
-    await this.db
-      .update(parks)
-      .set({ ...changes, updatedAt: new Date() })
-      .where(eq(parks.id, id));
+    if (changes.cityId) {
+      await this.assertCityExists(changes.cityId);
+    }
+
+    // updatedAt refreshes itself: the column declares $onUpdate in the schema.
+    await this.db.update(parks).set(changes).where(eq(parks.id, id));
 
     return this.findById(id);
   }
@@ -76,6 +79,23 @@ export class ParksService {
     // The park no longer exists, so returning it would be a lie. The id is
     // enough for the client to drop it from whatever it is showing.
     return { id };
+  }
+
+  // The foreign key would reject this anyway, but only as a database error the
+  // client cannot act on. Asking first turns it into an answerable one.
+  private async assertCityExists(cityId: string) {
+    const [city] = await this.db
+      .select({ id: cities.id })
+      .from(cities)
+      .where(eq(cities.id, cityId))
+      .limit(1);
+
+    if (!city) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'cityId does not match an existing city',
+      });
+    }
   }
 
   // The ownership rule lives here, not in the router: it stays true even with
