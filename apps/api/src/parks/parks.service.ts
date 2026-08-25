@@ -4,6 +4,7 @@ import { eq, getTableColumns } from 'drizzle-orm';
 import type { Database } from '@park-explorer/db';
 import { parks, cities } from '@park-explorer/db/schema';
 import { CONNECT_TO_DB } from '../database/database.providers';
+import type { CreateParkInput } from './parks.schemas';
 
 // Every park query returns the same shape: the whole park row, plus the city
 // name, which lives on another table.
@@ -38,6 +39,17 @@ export class ParksService {
     }
 
     return this.toPark(park);
+  }
+
+  // The creator is a separate argument on purpose: it comes from the verified
+  // token, not from the request body, so it must not be spreadable over.
+  async create(input: CreateParkInput, creatorId: string) {
+    const [created] = await this.db
+      .insert(parks)
+      .values({ ...input, creatorId })
+      .returning({ id: parks.id });
+
+    return this.findById(created.id);
   }
 
   // Drizzle returns timestamp columns as Date objects, while the output schema

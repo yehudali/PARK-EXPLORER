@@ -29,3 +29,14 @@ export const parkByIdInput = z.object({
 });
 
 export type ParkByIdInput = z.infer<typeof parkByIdInput>;
+
+export const createParkInput = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  cityId: z.uuid(),
+  openingDate: z.iso.date().optional(),
+  location: pointSchema,
+  polygon: polygonSchema.optional(),
+});
+
+export type CreateParkInput = z.infer<typeof createParkInput>;

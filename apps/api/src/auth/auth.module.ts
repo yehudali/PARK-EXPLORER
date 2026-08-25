@@ -23,5 +23,6 @@ import { config } from '../config/config';
     AuthRouter,
     AuthMiddleware,
   ],
+  exports: [AuthMiddleware],
 })
 export class AuthModule {}
