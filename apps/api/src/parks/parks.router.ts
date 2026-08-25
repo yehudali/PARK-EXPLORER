@@ -11,8 +11,10 @@ import {
   parkSchema,
   parkByIdInput,
   createParkInput,
+  updateParkInput,
   type ParkByIdInput,
   type CreateParkInput,
+  type UpdateParkInput,
 } from './parks.schemas';
 import { ParksService } from './parks.service';
 import { AuthMiddleware } from '../auth/auth.middleware';
@@ -37,5 +39,12 @@ export class ParksRouter {
     // ctx is typed unknown by nestjs-trpc; userId is added by AuthMiddleware
     const { userId } = ctx as { userId: string };
     return this.parksService.create(input, userId);
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Mutation({ input: updateParkInput, output: parkSchema })
+  update(@Input() input: UpdateParkInput, @Ctx() ctx: unknown) {
+    const { userId } = ctx as { userId: string };
+    return this.parksService.update(input, userId);
   }
 }

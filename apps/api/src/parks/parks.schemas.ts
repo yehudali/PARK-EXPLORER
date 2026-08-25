@@ -40,3 +40,14 @@ export const createParkInput = z.object({
 });
 
 export type CreateParkInput = z.infer<typeof createParkInput>;
+
+// Every field is optional, which makes { id } alone a valid input. An update
+// with nothing to set is a runtime error in Drizzle, so it is blocked here.
+export const updateParkInput = createParkInput
+  .partial()
+  .extend({ id: z.uuid() })
+  .refine((input) => Object.keys(input).length > 1, {
+    message: 'Provide at least one field to update',
+  });
+
+export type UpdateParkInput = z.infer<typeof updateParkInput>;

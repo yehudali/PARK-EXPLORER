@@ -4,7 +4,7 @@ import { eq, getTableColumns } from 'drizzle-orm';
 import type { Database } from '@park-explorer/db';
 import { parks, cities } from '@park-explorer/db/schema';
 import { CONNECT_TO_DB } from '../database/database.providers';
-import type { CreateParkInput } from './parks.schemas';
+import type { CreateParkInput, UpdateParkInput } from './parks.schemas';
 
 // Every park query returns the same shape: the whole park row, plus the city
 // name, which lives on another table.
@@ -50,6 +50,34 @@ export class ParksService {
       .returning({ id: parks.id });
 
     return this.findById(created.id);
+  }
+
+  // The ownership rule lives here, not in the router: it stays true even with
+  // no HTTP involved. Missing and forbidden are deliberately different codes.
+  async update(input: UpdateParkInput, userId: string) {
+    const { id, ...changes } = input;
+
+    const [existing] = await this.db
+      .select({ creatorId: parks.creatorId })
+      .from(parks)
+      .where(eq(parks.id, id))
+      .limit(1);
+
+    if (!existing) {
+      throw new TRPCError({ code: 'NOT_FOUND' });
+    }
+
+    if (existing.creatorId !== userId) {
+      throw new TRPCError({ code: 'FORBIDDEN' });
+    }
+
+    // defaultNow only fires on insert, so the update timestamp is set by hand.
+    await this.db
+      .update(parks)
+      .set({ ...changes, updatedAt: new Date() })
+      .where(eq(parks.id, id));
+
+    return this.findById(id);
   }
 
   // Drizzle returns timestamp columns as Date objects, while the output schema
