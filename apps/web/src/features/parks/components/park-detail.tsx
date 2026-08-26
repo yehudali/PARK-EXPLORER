@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft, CalendarDays, MapPin, User } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -19,9 +20,13 @@ function formatDate(isoDate: string) {
 export function ParkDetail({
   park,
   isOwner,
+  actions,
 }: {
   park: ParkDetailData
   isOwner: boolean
+  // A slot, not buttons: the screen owns the dialogs, this only says where they
+  // sit. Keeps the component free of mutations.
+  actions?: ReactNode
 }) {
   const [longitude, latitude] = park.location.coordinates
 
@@ -36,12 +41,15 @@ export function ParkDetail({
       </Link>
 
       <div className="flex flex-col gap-3">
-        <h1
-          dir="auto"
-          className="text-3xl font-semibold tracking-tight text-balance"
-        >
-          {park.name}
-        </h1>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <h1
+            dir="auto"
+            className="text-3xl font-semibold tracking-tight text-balance"
+          >
+            {park.name}
+          </h1>
+          {actions}
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">
             <MapPin />

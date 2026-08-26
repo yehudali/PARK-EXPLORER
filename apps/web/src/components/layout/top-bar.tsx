@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { TreePine } from 'lucide-react'
 import { UserMenu } from '@/features/auth/components/user-menu'
+import { NewParkButton } from '@/features/parks/components/new-park-button'
 import { ThemeToggle } from './theme-toggle'
 
 export function TopBar() {
@@ -14,8 +15,9 @@ export function TopBar() {
       </Link>
 
       <div className="flex items-center gap-2">
-        <ThemeToggle />
+        <NewParkButton />
         <div className="h-6 w-px bg-border" />
+        <ThemeToggle />
         <UserMenu />
       </div>
     </header>
