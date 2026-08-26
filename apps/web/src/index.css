@@ -2,3 +2,99 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+
+/* Dark mode is a class on the html element, not a media query - the user picks
+   it and the choice is remembered. */
+@custom-variant dark (&:is(.dark *));
+
+/* Stone & teal. One accent hue, one corner value, no shadows.
+   These values are the ones on the mockup canvas - keep the two in step. */
+:root {
+  --radius: 0.5rem;
+
+  --background: #fcfcfb;
+  --foreground: #2a2926;
+  --card: #ffffff;
+  --card-foreground: #2a2926;
+  --popover: #ffffff;
+  --popover-foreground: #2a2926;
+  --primary: #14807c;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f2;
+  --secondary-foreground: #2a2926;
+  --muted: #f4f4f2;
+  --muted-foreground: #78776f;
+  --accent: #f2f8f7;
+  --accent-foreground: #14807c;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: #e5e4e0;
+  --input: #d9d8d3;
+  --ring: #14807c;
+}
+
+.dark {
+  --background: #1a1a18;
+  --foreground: #edece8;
+  --card: #212120;
+  --card-foreground: #edece8;
+  --popover: #212120;
+  --popover-foreground: #edece8;
+  --primary: #2fa6a0;
+  --primary-foreground: #0b1f1e;
+  --secondary: #2a2a28;
+  --secondary-foreground: #edece8;
+  --muted: #2a2a28;
+  --muted-foreground: #a3a29b;
+  --accent: #16302e;
+  --accent-foreground: #2fa6a0;
+  --destructive: #e5837c;
+  --destructive-foreground: #1a1a18;
+  --border: #33332f;
+  --input: #3d3c38;
+  --ring: #2fa6a0;
+}
+
+/* Hands the variables above to Tailwind, so `bg-primary` and `border-border`
+   resolve. Without this block the utility classes exist but paint nothing. */
+@theme inline {
+  --font-sans: "Geist Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
