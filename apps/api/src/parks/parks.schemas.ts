@@ -24,6 +24,16 @@ export const parkSchema = z.object({
   updatedAt: z.string(),
 });
 
+// Every field is optional: no filter at all is a valid request, and it is the
+// one the main screen makes on a cold load.
+export const findAllParksInput = z.object({
+  search: z.string().optional(),
+  regionId: z.uuid().optional(),
+  cityId: z.uuid().optional(),
+});
+
+export type FindAllParksInput = z.infer<typeof findAllParksInput>;
+
 export const parkByIdInput = z.object({
   id: z.uuid(),
 });

@@ -4,11 +4,15 @@ import {
   InvalidInputError,
   NotFoundError,
 } from '../common/domain.errors';
-import { eq, getTableColumns } from 'drizzle-orm';
+import { and, eq, getTableColumns, ilike, type SQL } from 'drizzle-orm';
 import type { Database } from '@park-explorer/db';
 import { parks, cities } from '@park-explorer/db/schema';
 import { CONNECT_TO_DB } from '../database/database.providers';
-import type { CreateParkInput, UpdateParkInput } from './parks.schemas';
+import type {
+  CreateParkInput,
+  FindAllParksInput,
+  UpdateParkInput,
+} from './parks.schemas';
 
 // Every park query returns the same shape: the whole park row, plus the city
 // name, which lives on another table.
@@ -21,11 +25,33 @@ const parkColumns = {
 export class ParksService {
   constructor(@Inject(CONNECT_TO_DB) private readonly db: Database) {}
 
-  async findAll() {
+  // The filters ride on the join that is already here for the city name, so
+  // filtering by region costs no extra table.
+  async findAll(filters: FindAllParksInput = {}) {
+    const conditions: SQL[] = [];
+
+    // Trimmed, because a box holding only spaces is an empty box. ILIKE is the
+    // case insensitive match; the wildcards are ours to add.
+    const search = filters.search?.trim();
+    if (search) {
+      conditions.push(ilike(parks.name, `%${search}%`));
+    }
+
+    if (filters.regionId) {
+      conditions.push(eq(cities.regionId, filters.regionId));
+    }
+
+    if (filters.cityId) {
+      conditions.push(eq(parks.cityId, filters.cityId));
+    }
+
     const rows = await this.db
       .select(parkColumns)
       .from(parks)
-      .innerJoin(cities, eq(parks.cityId, cities.id));
+      .innerJoin(cities, eq(parks.cityId, cities.id))
+      // and() of an empty list is undefined, and where(undefined) filters
+      // nothing - so no filter needs no separate branch.
+      .where(and(...conditions));
 
     return rows.map((row) => this.toPark(row));
   }

@@ -10,10 +10,12 @@ import { z } from 'zod';
 import {
   parkSchema,
   parkByIdInput,
+  findAllParksInput,
   createParkInput,
   updateParkInput,
   deletedParkOutput,
   type ParkByIdInput,
+  type FindAllParksInput,
   type CreateParkInput,
   type UpdateParkInput,
 } from './parks.schemas';
@@ -24,9 +26,9 @@ import { AuthMiddleware } from '../auth/auth.middleware';
 export class ParksRouter {
   constructor(private readonly parksService: ParksService) {}
 
-  @Query({ output: z.array(parkSchema) })
-  findAll() {
-    return this.parksService.findAll();
+  @Query({ input: findAllParksInput, output: z.array(parkSchema) })
+  findAll(@Input() input: FindAllParksInput) {
+    return this.parksService.findAll(input);
   }
 
   @Query({ input: parkByIdInput, output: parkSchema })
