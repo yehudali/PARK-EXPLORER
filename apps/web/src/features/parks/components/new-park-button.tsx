@@ -8,9 +8,9 @@ export function NewParkButton() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>
+      <Button onClick={() => setOpen(true)} aria-label="New park">
         <Plus />
-        New park
+        <span className="hidden sm:inline">New park</span>
       </Button>
       <ParkFormDialog open={open} onOpenChange={setOpen} />
     </>

@@ -62,15 +62,17 @@ export function ParkFilters() {
   const hasFilters = Boolean(filters.search || filters.regionId || filters.cityId)
 
   return (
-    <div className="flex flex-wrap items-center gap-3 border-b bg-card px-6 py-3">
-      <div className="relative">
+    // A two column grid at phone width - search across the top, the two
+    // selects side by side - and a plain row once there is space for one.
+    <div className="grid grid-cols-2 gap-3 border-b bg-card px-4 py-3 sm:flex sm:flex-wrap sm:items-center sm:px-6">
+      <div className="relative col-span-2 sm:col-span-1 sm:w-64">
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={term}
           onChange={(event) => setTerm(event.target.value)}
           placeholder="Search parks"
           aria-label="Search parks"
-          className="w-64 pl-8"
+          className="w-full pl-8"
         />
       </div>
 
@@ -89,7 +91,7 @@ export function ParkFilters() {
           })
         }
       >
-        <SelectTrigger className="w-44" aria-label="Region">
+        <SelectTrigger className="w-full sm:w-44" aria-label="Region">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -115,7 +117,7 @@ export function ParkFilters() {
           })
         }
       >
-        <SelectTrigger className="w-44" aria-label="City">
+        <SelectTrigger className="w-full sm:w-44" aria-label="City">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
