@@ -1,16 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { MapPlaceholder } from '@/components/common/map-placeholder'
 import { TwoPane } from '@/components/layout/two-pane'
+import { ParksPanel } from '@/features/parks/components/parks-panel'
 
 export const Route = createFileRoute('/_authenticated/')({
   component: () => (
-    <TwoPane
-      left={
-        <div className="p-6 text-sm text-muted-foreground">
-          The park list arrives in D.3.
-        </div>
-      }
-      right={<MapPlaceholder />}
-    />
+    <TwoPane left={<ParksPanel />} right={<MapPlaceholder />} />
   ),
 })
