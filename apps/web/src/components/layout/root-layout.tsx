@@ -1,6 +1,5 @@
 import { Suspense, lazy } from 'react'
 import { Outlet } from '@tanstack/react-router'
-import { AppShell } from './app-shell'
 
 // Both devtools are dev dependencies, and both are pulled in lazily so the
 // production bundle never carries them.
@@ -23,9 +22,9 @@ const QueryDevtools = import.meta.env.PROD
 export function RootLayout() {
   return (
     <>
-      <AppShell>
-        <Outlet />
-      </AppShell>
+      {/* No shell here on purpose: the sign-in and register screens are
+          full-page cards, and only the authenticated layout adds the top bar. */}
+      <Outlet />
       <Suspense fallback={null}>
         <RouterDevtools position="bottom-right" />
         <QueryDevtools initialIsOpen={false} />
