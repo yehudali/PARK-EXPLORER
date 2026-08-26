@@ -7,7 +7,9 @@ import { router } from "./lib/router.ts";
 import { createQueryClient } from "./lib/query-client.ts";
 import { useAuthStore } from "./stores/auth.store.ts";
 
-const TRPC_URL = "http://localhost:3000/trpc";
+// The address is configuration, not a constant. The fallback keeps local
+// development working with no .env file at all.
+const TRPC_URL = import.meta.env.VITE_TRPC_URL ?? "http://localhost:3000/trpc";
 
 export default function Root() {
   const [queryClient] = useState(createQueryClient);
