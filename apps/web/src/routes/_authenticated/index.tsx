@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_authenticated/')({
   component: () => (
     <div className="flex h-full min-h-0 flex-col">
       <ParkFilters />
-      <div className="min-h-0 flex-grow">
+      <div className="min-h-0 grow">
         <TwoPane left={<ParksPanel />} right={<MapPlaceholder />} />
       </div>
     </div>

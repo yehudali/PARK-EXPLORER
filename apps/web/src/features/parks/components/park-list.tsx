@@ -12,7 +12,7 @@ export function ParkList({ parks }: { parks: Park[] }) {
         </span>
       </div>
 
-      <div className="flex min-h-0 flex-grow flex-col gap-3 overflow-y-auto px-6 pb-6">
+      <div className="flex min-h-0 grow flex-col gap-3 overflow-y-auto px-6 pb-6">
         {/* The link lives here, not in the card - so the card stays usable
             inside the map popup in Stage E, where it links nowhere. */}
         {parks.map((park) => (
