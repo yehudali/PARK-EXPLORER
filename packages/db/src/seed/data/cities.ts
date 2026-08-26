@@ -1,0 +1,16 @@
+export const cities = [
+  { name: 'חיפה', regionName: 'צפון' },
+  { name: 'טבריה', regionName: 'צפון' },
+  { name: 'נהריה', regionName: 'צפון' },
+  { name: 'צפת', regionName: 'צפון' },
+  { name: 'תל אביב', regionName: 'מרכז' },
+  { name: 'רמת גן', regionName: 'מרכז' },
+  { name: 'פתח תקווה', regionName: 'מרכז' },
+  { name: 'ראשון לציון', regionName: 'מרכז' },
+  { name: 'ירושלים', regionName: 'ירושלים' },
+  { name: 'בית שמש', regionName: 'ירושלים' },
+  { name: 'מעלה אדומים', regionName: 'ירושלים' },
+  { name: 'באר שבע', regionName: 'דרום' },
+  { name: 'אילת', regionName: 'דרום' },
+  { name: 'אשדוד', regionName: 'דרום' },
+];

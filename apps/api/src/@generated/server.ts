@@ -8,25 +8,70 @@
  * Learn more: https://nestjs-trpc.io
  */
 
-import { initTRPC } from '@trpc/server';
-import { z } from 'zod';
+import { initTRPC } from "@trpc/server";
+import { z } from "zod";
 
 const t = initTRPC.create();
 const publicProcedure = t.procedure;
+import { registerInput, authOutput, loginInput, meOutput } from "../auth/auth.schemas.js";
+import { citiesByRegionInput, citySchema } from "../cities/cities.schemas.js";
+import { parkSchema, parkByIdInput, createParkInput, updateParkInput, deletedParkOutput } from "../parks/parks.schemas.js";
+import { regionSchema } from "../regions/regions.schemas.js";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const appRouter = t.router({
+  authRouter: t.router({
+    register: publicProcedure
+      .input(registerInput)
+      .output(authOutput)
+      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    login: publicProcedure
+      .input(loginInput)
+      .output(authOutput)
+      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    me: publicProcedure
+      .output(meOutput)
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    }),
+  citiesRouter: t.router({
+    findByRegion: publicProcedure
+      .input(citiesByRegionInput)
+      .output(z.array(citySchema))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    }),
+  parksRouter: t.router({
+    findAll: publicProcedure
+      .output(z.array(parkSchema))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    findById: publicProcedure
+      .input(parkByIdInput)
+      .output(parkSchema)
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    create: publicProcedure
+      .input(createParkInput)
+      .output(parkSchema)
+      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    update: publicProcedure
+      .input(updateParkInput)
+      .output(parkSchema)
+      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    remove: publicProcedure
+      .input(parkByIdInput)
+      .output(deletedParkOutput)
+      .mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    }),
+  regionsRouter: t.router({
+    findAll: publicProcedure
+      .output(z.array(regionSchema))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    }),
   healthRouter: t.router({
     health: publicProcedure
-      .output(
-        z.object({
-          status: z.string(),
-          message: z.string(),
-        }),
-      )
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      .query(() => 'PLACEHOLDER_DO_NOT_REMOVE' as any),
-  }),
+      .output(z.object({
+  status: z.string(),
+  message: z.string(),
+}))
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+    })
 });
 
 export type AppRouter = typeof appRouter;

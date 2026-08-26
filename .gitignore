@@ -38,3 +38,10 @@ yarn-error.log*
 *.pem
 
 *.tsbuildinfo
+CLAUDE.md
+
+# קבצים אישיים, מעקב ומסמכי דרישות — לא נכנסים ל-git.
+docs/
+
+# Claude Code tooling (launch configs, local settings)
+.claude/
