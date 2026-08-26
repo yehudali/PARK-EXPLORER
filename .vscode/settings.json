@@ -12,5 +12,12 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "js/ts.tsdk.path": "apps/web/node_modules/typescript/lib"
+  "js/ts.tsdk.path": "apps/web/node_modules/typescript/lib",
+
+  // Off because the only files that still trigger it are the generated shadcn
+  // components, which we do not edit by hand and which the CLI overwrites - so
+  // the warning can never be acted on. Our own code is already canonical, and
+  // the D.7 review pass catches drift without the extension. Delete this line
+  // to turn the hints back on.
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore"
 }
