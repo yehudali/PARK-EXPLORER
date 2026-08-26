@@ -1,18 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-};
-
+// The token, and nothing else. The signed-in user is server data, so it is a
+// query - copying it in here would be exactly the duplication the stage forbids.
 type AuthState = {
   token: string | null;
-  user: User | null;
   setToken: (token: string | null) => void;
-  setUser: (user: User | null) => void;
-  logout: () => void;
+  clear: () => void;
 };
 
 // create<T>()(...) double-call: zustand's way of letting us set the type
@@ -21,14 +15,14 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       token: null,
-      user: null,
       setToken: (token) => set({ token }),
-      setUser: (user) => set({ user }),
-      logout: () => set({ token: null, user: null }),
+      clear: () => set({ token: null }),
     }),
     {
       // localStorage key persist saves this store under.
       name: "auth-storage",
+      // Bumped because the stored shape lost its user field.
+      version: 2,
     },
   ),
 );
