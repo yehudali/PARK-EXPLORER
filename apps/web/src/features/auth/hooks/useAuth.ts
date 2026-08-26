@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { trpc } from '../lib/trpc'
-import { useAuthStore } from '../stores/auth.store'
+import { trpc } from '@/lib/trpc'
+import { useAuthStore } from '@/stores/auth.store'
 
 export function useAuth() {
   const authState = useAuthStore()
