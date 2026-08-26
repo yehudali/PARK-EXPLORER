@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { ParkCard } from './park-card'
 import type { Park } from '../types'
 
@@ -12,8 +13,17 @@ export function ParkList({ parks }: { parks: Park[] }) {
       </div>
 
       <div className="flex min-h-0 flex-grow flex-col gap-3 overflow-y-auto px-6 pb-6">
+        {/* The link lives here, not in the card - so the card stays usable
+            inside the map popup in Stage E, where it links nowhere. */}
         {parks.map((park) => (
-          <ParkCard key={park.id} park={park} />
+          <Link
+            key={park.id}
+            to="/parks/$id"
+            params={{ id: park.id }}
+            className="rounded-lg focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+          >
+            <ParkCard park={park} />
+          </Link>
         ))}
       </div>
     </div>

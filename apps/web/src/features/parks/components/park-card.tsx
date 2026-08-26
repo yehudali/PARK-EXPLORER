@@ -11,7 +11,7 @@ export function ParkCard({ park }: { park: Park }) {
   const openedYear = park.openingDate?.slice(0, 4)
 
   return (
-    <article className="flex flex-col gap-2 rounded-lg border bg-card p-4">
+    <article className="flex flex-col gap-2 rounded-lg border bg-card p-4 transition-colors hover:border-primary/40">
       <div className="flex items-baseline justify-between gap-3">
         <h3 dir="auto" className="text-base font-semibold tracking-tight">
           {park.name}
