@@ -1,7 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { MapPlaceholder } from '@/components/common/map-placeholder'
+import { TwoPane } from '@/components/layout/two-pane'
 
-// Placeholder until the main screen exists. A real route file wires a feature
-// component in here instead of holding one.
 export const Route = createFileRoute('/')({
-  component: () => <div>Park Explorer</div>,
+  component: () => (
+    <TwoPane
+      left={
+        <div className="p-6 text-sm text-muted-foreground">
+          The park list arrives in D.3.
+        </div>
+      }
+      right={<MapPlaceholder />}
+    />
+  ),
 })
