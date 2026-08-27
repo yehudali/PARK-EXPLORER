@@ -10,3 +10,22 @@ export const parkFiltersSchema = z.object({
 })
 
 export type ParkFilters = z.infer<typeof parkFiltersSchema>
+
+// The selected park lives in the address too (E6), and gets the same treatment:
+// an id that no longer exists opens a screen with nothing selected, not an
+// error screen.
+//
+// It is deliberately NOT part of the filter schema. The filters are what the
+// parks query is keyed on, and folding the selection in would give every marker
+// click a new cache key - which means a refetch, and a list that blinks every
+// time a park is picked on the map.
+export const parkSearchSchema = parkFiltersSchema.extend({
+  selected: z.uuid().optional().catch(undefined),
+})
+
+export type ParkSearch = z.infer<typeof parkSearchSchema>
+
+// The filter subset, and only it, is what reaches the query.
+export function toFilters({ search, regionId, cityId }: ParkSearch): ParkFilters {
+  return { search, regionId, cityId }
+}

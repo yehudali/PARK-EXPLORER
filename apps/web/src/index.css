@@ -98,3 +98,74 @@
     -webkit-font-smoothing: antialiased;
   }
 }
+
+/* Leaflet paints its panes at z-index 400-700, which is above every overlay
+   this app has. Giving the map container its own stacking context keeps those
+   numbers inside the map, so dialogs and dropdowns still open on top of it.
+   position: relative is what Leaflet needs anyway - its panes are absolute. */
+.leaflet-container {
+  position: relative;
+  z-index: 0;
+}
+
+/* The tile provider has no dark basemap, so dark mode is made here rather than
+   fetched. Scoped to the tile pane alone: markers, boundaries, popups and
+   controls live in other panes and have to keep their real colours. Inverting
+   and then rotating the hue back by half the circle is what keeps parks green
+   and water blue instead of turning the map into a photographic negative. */
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9);
+}
+
+/* Leaflet's popup and attribution ship with their own light-only chrome. These
+   rules hand both back to the app's palette so dark mode is not half applied.
+
+   Every one of them is scoped under .leaflet-container on purpose. Leaflet's
+   own stylesheet is imported from the map component, so Vite injects it after
+   this file - at equal specificity it therefore wins on order alone, and the
+   plain single-class versions of these rules silently lost. That left the popup
+   painted white with #333 text, which in dark mode put the park name at roughly
+   1.2:1 against the card behind it. The extra class is what makes ours win
+   regardless of injection order. */
+.leaflet-container .leaflet-popup-content-wrapper {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+}
+
+/* Leaflet writes a pixel width here inline, measured before the React card has
+   laid out, so the override hands sizing back to CSS. On its own though it also
+   defeats the Popup's own minWidth, and the card collapses to about half the
+   width it asked for - a name breaking across three lines. The floor restores
+   what minWidth was meant to guarantee; keep the two in step. */
+.leaflet-container .leaflet-popup-content {
+  margin: 0.5rem;
+  width: auto !important;
+  min-width: 14rem;
+}
+
+.leaflet-container .leaflet-popup-tip {
+  background: var(--popover);
+  border: 1px solid var(--border);
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--muted-foreground);
+  padding: 0.375rem 0.375rem 0 0;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--foreground);
+  background: transparent;
+}
+
+.leaflet-container .leaflet-control-attribution {
+  background: var(--card);
+  color: var(--muted-foreground);
+}
+
+.leaflet-container .leaflet-control-attribution a {
+  color: var(--muted-foreground);
+}

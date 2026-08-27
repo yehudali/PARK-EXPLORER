@@ -134,7 +134,9 @@ export function ParkFilters() {
           variant="ghost"
           onClick={() => {
             setTerm('')
-            navigate({ search: {} })
+            // Only the filters are dropped - clearing them widens the screen,
+            // so the chosen park is still on it.
+            navigate({ search: (prev) => ({ selected: prev.selected }) })
           }}
         >
           <X />

@@ -3,7 +3,9 @@ import { SearchX, TreePine } from 'lucide-react'
 import { QueryState } from '@/components/common/query-state'
 import { StatePanel } from '@/components/common/state-panel'
 import { Button } from '@/components/ui/button'
+import { toFilters } from '@/features/filters/schemas'
 import { useParks } from '../hooks/useParks'
+import { useParkSelection } from '../hooks/useParkSelection'
 import { ParkList } from './park-list'
 import { ParkListSkeleton } from './park-list-skeleton'
 
@@ -12,13 +14,12 @@ const route = getRouteApi('/_authenticated/')
 // The left pane of the main screen: the one place that joins the query to the
 // display components. Everything below it takes props.
 export function ParksPanel() {
-  const filters = route.useSearch()
+  const search = route.useSearch()
   const navigate = route.useNavigate()
-  const parks = useParks(filters)
+  const parks = useParks(toFilters(search))
+  const { selectedId, select } = useParkSelection()
 
-  const isFiltered = Boolean(
-    filters.search || filters.regionId || filters.cityId,
-  )
+  const isFiltered = Boolean(search.search || search.regionId || search.cityId)
 
   return (
     <QueryState
@@ -35,7 +36,14 @@ export function ParksPanel() {
             title="No parks match this filter"
             description="Nothing here fits the search and filters you chose."
             action={
-              <Button variant="outline" onClick={() => navigate({ search: {} })}>
+              <Button
+                variant="outline"
+                // Clearing the filters widens the screen, so the chosen park is
+                // still on it. Only the filters are dropped.
+                onClick={() =>
+                  navigate({ search: (prev) => ({ selected: prev.selected }) })
+                }
+              >
                 Clear filters
               </Button>
             }
@@ -49,7 +57,9 @@ export function ParksPanel() {
         )
       }
     >
-      {(data) => <ParkList parks={data} />}
+      {(data) => (
+        <ParkList parks={data} selectedId={selectedId} onSelect={select} />
+      )}
     </QueryState>
   )
 }
