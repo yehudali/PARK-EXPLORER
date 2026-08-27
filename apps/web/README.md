@@ -1,75 +1,244 @@
-# React + TypeScript + Vite
+# apps/web — לקוח Park Explorer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+אפליקציית React 19 על Vite, מוקלדת מול השרת דרך tRPC.
+העיצוב הוא Tailwind v4 עם רכיבי shadcn בסגנון `base-nova`, שיושבים מעל Base UI.
 
-Currently, two official plugins are available:
+מסמך זה מתאר את הלקוח בלבד. להקשר הכללי, למשתני הסביבה ולפקודות מהשורש — ראו את ה-README בשורש המונוריפו.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## מפת הספריות
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| תחום     | ספרייה                                      | תפקידה כאן                                                 |
+| -------- | ------------------------------------------- | ---------------------------------------------------------- |
+| ניתוב    | TanStack Router                             | ניתוב מבוסס קבצים, פרמטרים ומחרוזת שאילתה מאומתים בטיפוסים |
+| שרת-מצב  | TanStack Query                              | כל נתון שמגיע מהשרת. מטמון, ריענון, מצבי טעינה ושגיאה      |
+| תעבורה   | tRPC (`@trpc/react-query`)                  | חוזה מוקלד מול השרת, בלי הגדרת נתיבים ידנית                |
+| מצב לקוח | Zustand                                     | הטוקן, ורק הוא                                             |
+| טפסים    | react-hook-form + Zod                       | אימות בצד הלקוח, במראה של סכימות השרת                      |
+| מפה      | Leaflet + react-leaflet 5                   | ספרייה ציווית שמנהלת DOM בעצמה, בתוך React                 |
+| ממשק     | Tailwind v4, shadcn/Base UI, lucide, sonner | רכיבים, אייקונים והודעות מרחפות                            |
 
-## Expanding the ESLint configuration
+**הפרדת המצב היא ההכרעה המרכזית של הלקוח:** כל מה שהשרת יודע נשאר שאילתה ואינו מועתק לחנות.
+בחנות שמור טוקן ההזדהות בלבד. המשתמש המחובר עצמו הוא שאילתה (`authRouter.me`), ולכן לא יכולים
+להתקיים שני עותקים שלו שסותרים זה את זה.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## מבנה התיקיות
 
 ```
+src/
+├── main.tsx                 נקודת הכניסה. מחיל את הערכה עוד לפני הרינדור הראשון
+├── Root.tsx                 מרכיב את הספקים: tRPC, Query, Router
+├── index.css                טוקני העיצוב, הערכה הכהה, ודריסות Leaflet
+├── routeTree.gen.ts         מיוצר בידי תוסף הראוטר. אין לערוך ידנית
+│
+├── routes/                  עץ הניתוב — כל קובץ הוא מסך
+│   ├── __root.tsx           מעטפת שורשית: Outlet, Toaster, devtools
+│   ├── login.tsx            /login
+│   ├── register.tsx         /register
+│   ├── _authenticated.tsx   מסלול פריסה ללא נתיב — השומר
+│   └── _authenticated/
+│       ├── index.tsx        /        המסך הראשי הדו-חלוני
+│       └── parks.$id.tsx    /parks/:id
+│
+├── features/                כל פיצ׳ר עומד בפני עצמו
+│   ├── auth/                מסכי כניסה והרשמה, תפריט המשתמש, useAuth
+│   ├── filters/             סרגל הסינון, useRegions · useCities · useDebouncedValue
+│   ├── map/                 המפה, מיקוד, סמנים, גבולות, פופאפ
+│   └── parks/               רשימה, כרטיס, מסך פרטים, טופס, מחיקה
+│
+├── components/
+│   ├── ui/                  רכיבי shadcn. מיוצרים בידי ה-CLI
+│   ├── layout/              AppShell, TopBar, TwoPane, ThemeToggle
+│   └── common/              QueryState, StatePanel, FullScreenLoader
+│
+├── lib/
+│   ├── trpc.ts              הלקוח + טיפוס RouterOutput
+│   ├── query-client.ts      מדיניות ניסיון חוזר, ומדיניות ניתוק אחת
+│   ├── errors.ts            קוד שגיאה → משפט לקורא
+│   ├── router.ts            יצירת הראוטר ורישום הטיפוס שלו
+│   └── theme.ts             קריאה והחלה של הערכה
+│
+└── stores/
+    └── auth.store.ts        הטוקן, ב-localStorage
+```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### המוסכמה שחוזרת בכל פיצ׳ר
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+בכל פיצ׳ר יש **רכיב חיבור אחד** שקורא שאילתות ואת הכתובת, וכל מה שמתחתיו מקבל props בלבד.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- `ParksPanel` ו-`MapPanel` הם רכיבי החיבור של שתי החלוניות.
+- `ParkCard`, `ParkList` ו-`ParkMap` הם תצוגה נטו — בלי ראוטר ובלי שאילתות.
+
+זה מה שמאפשר לאותו `ParkCard` להופיע גם ברשימה וגם בתוך הפופאפ של המפה, ולאותו `ParkMap`
+להופיע גם במסך הראשי וגם בתוך מסך הפרטים, בלי שינוי.
+
+---
+
+## ניתוב והרשאה
 
 ```
+__root                 Outlet + Toaster + devtools. בלי מעטפת ובלי סרגל עליון
+├── /login             מסך מלא. מחרוזת שאילתה: redirect
+├── /register          מסך מלא
+└── _authenticated     מסלול פריסה ללא נתיב — לא מוסיף שום מקטע לכתובת
+    │                  beforeLoad: אין טוקן → הפניה ל-/login עם הכתובת הנוכחית
+    │                  AuthenticatedLayout: מאמת את הטוקן מול השרת פעם אחת
+    ├── /              המסך הראשי. מחרוזת שאילתה: search, regionId, cityId, selected
+    └── /parks/:id     מסך פרטים. המזהה מאומת כ-UUID לפני שיוצאת בקשה
+```
+
+השומר הוא **דו-שלבי בכוונה**:
+
+1. `beforeLoad` עונה על "אין טוקן בכלל" בלי לשאול את השרת דבר.
+2. `AuthenticatedLayout` מאמת את הטוקן השמור מול `authRouter.me`, ורק אז מצייר משהו.
+
+ההפרדה חשובה במקרה הגבול: שרת שנפל אינו נראה כמו בעיית טוקן. רק כישלון הרשאה אמיתי מנתק את
+המשתמש — אחרת הוא היה מוקפץ למסך התחברות שגם הוא לא יכול לעבוד.
+
+### הכתובת היא המצב
+
+הסינון והפארק הנבחר יושבים במחרוזת השאילתה, לא ב-state של רכיב. לכן קישור משוחזר בדיוק,
+וכפתור החזרה עובד. כל שדה מאומת ב-Zod עם `catch`, ולכן קישור מקולקל פותח מסך לא-מסונן במקום מסך שגיאה.
+
+הבחירה (`selected`) מופרדת מסכימת הסינון בכוונה. שאילתת הפארקים ממופתחת לפי הסינון בלבד;
+איחוד הבחירה לתוכה היה נותן לכל לחיצה על סמן מפתח מטמון חדש — כלומר שליפה מחדש, ורשימה שמהבהבת בכל בחירה.
+
+כל כתיבת בחירה מבוצעת עם `replace: true`. בלעדיה עשר לחיצות על סמנים היו עולות עשר לחיצות על כפתור החזרה כדי לצאת מהמסך.
+
+---
+
+## עבודה עם השרת
+
+```ts
+// lib/trpc.ts
+export const trpc = createTRPCReact<AppRouter>();
+export type RouterOutput = inferRouterOutputs<AppRouter>;
+```
+
+הטיפוס `AppRouter` מיובא מקובץ החוזה המיוצר של השרת, דרך כינוי הנתיב
+
+```
+@server/*  →  ../api/src/*
+```
+
+זהו ייבוא טיפוסים בלבד: שום קוד שרת אינו נכנס לחבילת הלקוח.
+
+מכאן נגזרים גם טיפוסי הדומיין, בקובץ `features/parks/types.ts`:
+
+```ts
+type Park = RouterOutput["parksRouter"]["findAll"][number];
+```
+
+כלומר **אף רכיב אינו מגדיר מחדש את הצורה שהשרת מחזיר**. פרוצדורה שמשנה את הפלט שלה שוברת קומפילציה כאן.
+
+> חשוב: הקובץ `apps/api/src/@generated/server.ts` אינו מתעדכן מעצמו. אחרי שינוי בחוזה השרת יש
+> להריץ `npm run trpc:generate` מהשורש, אחרת הלקוח מוקלד מול חוזה ישן.
+
+### מדיניות מטמון
+
+| שאילתה        | הגדרה                                   | למה                                                         |
+| ------------- | --------------------------------------- | ----------------------------------------------------------- |
+| ברירת מחדל    | `staleTime` של דקה                      | מונע שליפה חוזרת בכל הרכבה מחדש, בלי להתיישן במהלך הדגמה    |
+| ברירת מחדל    | `refetchOnWindowFocus` מכובה            | מעבר בין לשוניות לא טוען מחדש את כל המסך                    |
+| רשימת פארקים  | `keepPreviousData`                      | שינוי סינון הוא מפתח חדש; בלי זה הרשימה מתרוקנת בזמן הטעינה |
+| מחוזות, ערים  | `staleTime` אינסופי                     | נתוני ייחוס שאינם משתנים בזמן שמסתכלים עליהם                |
+| ערים          | `enabled` לפי מחוז                      | שאילתה תלויה. בלי מחוז נבחר אין מה לשאול, ולא יוצאת בקשה    |
+| המשתמש המחובר | `staleTime` אינסופי, `enabled` לפי טוקן | הזהות נבדקת פעם אחת בכניסה                                  |
+
+### שגיאות וניסיון חוזר
+
+הקובץ `lib/errors.ts` הוא המקום היחיד שממיר קוד שגיאה למשפט שהמשתמש קורא. מסך יכול לדרוס
+קוד ספציפי שמשמעותו אצלו מיוחדת — למשל התנגשות במסך ההרשמה, שמשמעה אימייל תפוס.
+
+לצד קודי השרת קיים קוד `OFFLINE`: שגיאת tRPC שאין בה `data` מעולם לא הגיעה לשרת. כך "השרת כבוי" ו"השרת ענה בשגיאה" אינם נראים אותו דבר.
+
+בקובץ `lib/query-client.ts`:
+
+- קוד שהוא תשובה ולא תקלה — `BAD_REQUEST`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT` — אינו מנוסה שוב. ניסיון חוזר רק היה מעכב את ההודעה שהמשתמש צריך לראות.
+- מוטציות אינן מנוסות שוב לעולם. כתיבה לא נשלחת פעמיים.
+- קוד `UNAUTHORIZED` בכל בקשה שהיא מנתק את המשתמש ומנקה את המטמון — פעם אחת, במקום אחד, כדי שטוקן שפג באמצע סשן לא ישאיר מסך חצי-שבור.
+
+### מצבי טעינה, שגיאה וריקנות
+
+הרכיב `QueryState` הוא המעטפת האחידה. מקבל שאילתה, שלד לטעינה, ומה נחשב "ריק" עבור המסך —
+ומחזיר את אותה התנהגות בכל מסך. כל פאנל ריק או שגוי מצויר דרך `StatePanel`, ולכן כולם נראים כמו מוצר אחד.
+
+חריג יחיד: המפה אינה עטופה ב-`QueryState`. האריחים אינם תלויים בשאילתה, ופירוק הרכיב בכל מצב
+טעינה היה מאתחל את Leaflet מחדש — מדידת המכל מחדש, וזריקת המיקום והזום של המשתמש. לכן המפה
+נשארת מורכבת, ומצבי השגיאה מצוירים מעליה.
+
+---
+
+## המפה
+
+Leaflet היא ספרייה ציווית שמנהלת DOM בעצמה. הגישור נעשה בדפוס אחד, שחוזר פעמיים:
+
+**רכיב שמחזיר `null` ורק מתרגם שינוי במצב React לפקודה ציווית.** הוא חייב להיות בן של המפה,
+כי מופע המפה מגיע מ-context ולא מ-props:
+
+- `FocusOnSelected` — מעוף אל הפארק הנבחר. יש גבול → מסגור הגבול; אין → מעוף לנקודה בזום קבוע.
+- `ClearSelectionOnBackgroundClick` — לחיצה על הרקע מנקה את הבחירה.
+
+נקודות שכדאי להכיר:
+
+- **סדר הקואורדינטות.** GeoJSON כותב אורך לפני רוחב, Leaflet הפוך. היפוך שגוי אינו זורק דבר — הפארק פשוט מופיע ביבשת אחרת. לכן ההיפוך מרוכז בקובץ `features/map/lib/geo.ts` ובו בלבד.
+- **סמנים וקטוריים ולא תמונות.** `CircleMarker` במקום סיכה, מה שעוקף לגמרי את בעיית נתיבי האייקון השבורים של Leaflet תחת bundler.
+- **המכל אינו נשלט.** המרכז והזום שמועברים ל-`MapContainer` הם התצוגה הפותחת בלבד. כל תזוזה אחריה היא פקודה ציווית מבן.
+- **סדר הציור.** גבולות מצוירים לפני סמנים; שניהם חולקים לוח אחד ב-Leaflet, וסדר הציור הוא מה שמשאיר את הסמן לחיץ מעל הגבול של הפארק שלו.
+- **מפתח שכבת הגבול.** שכבת GeoJSON קוראת את הנתונים פעם אחת, בהרכבה, ומתעלמת מכל שינוי אחר כך. לכן המפתח נושא גם את `updatedAt` ולא רק את המזהה.
+- **עצירת התפשטות.** Leaflet מפעיל לחיצה על שכבה גם על המפה עצמה. בלי `stopPropagation` המנקה היה מבטל את הבחירה באותה לחיצה שיצרה אותה.
+- **מצב כהה.** לספק האריחים אין מפת בסיס כהה, ולכן הגרסה הכהה נוצרת בפילטר CSS מעל לוח האריחים בלבד. היפוך ואז סיבוב גוון בחצי מעגל — כך פארקים נשארים ירוקים ומים כחולים. הסמנים והגבולות מקבלים צבע אמיתי, כי Leaflet כותב אותם כתכונות SVG ו-`var()` אינו נפתר שם.
+- **צבעים כפולים.** שני ערכי `--primary` משוכפלים כערכים קשיחים ב-`features/map/constants.ts`, מאותה סיבה. יש לשמור על השניים מסונכרנים.
+
+---
+
+## עיצוב וערכת נושא
+
+- טוקנים ב-`index.css`, בשני בלוקים: `:root` ו-`.dark`. מצב כהה הוא מחלקה על אלמנט השורש, לא שאילתת מדיה — המשתמש בוחר, והבחירה נזכרת.
+- הפונקציה `applyTheme` נקראת ב-`main.tsx` לפני הרינדור הראשון, ולכן העמוד לא מהבהב בערכה הלא נכונה.
+- הוו `useIsDarkTheme` קורא את המחלקה בחזרה דרך `MutationObserver`. כך יש מקור אמת אחד: המתג כותב, וכל השאר מסתכל.
+- שני משתני העיצוב, `--radius` והפלטה, לקוחים מקנבס האפיון. יש לשמור על השניים מסונכרנים.
+
+### שתי הערות על Base UI
+
+הרכיבים כאן הם סגנון `base-nova` של shadcn, שיושב מעל **Base UI** ולא מעל Radix. השמות
+זהים אך ה-API שונה, ומדריכים שנכתבו ל-Radix לא בהכרח יעבדו:
+
+- `DropdownMenuLabel` ממופה ל-`GroupLabel`, וזורק שגיאה אם הוא אינו בתוך קבוצה.
+- `DropdownMenuTrigger` מקבל `render` ולא `asChild`.
+
+### דו-כיווניות
+
+הממשק אנגלי ומשמאל לימין, אך הפארקים עצמם נקראים בעברית. לכן כל שדה שמכיל טקסט של משתמש
+מקבל `dir="auto"` — בלעדיו האייקונים והפיסוק נוחתים בצד הלא נכון.
+
+---
+
+## פקודות
+
+מתוך `apps/web`:
+
+```bash
+npm run dev              # שרת Vite על 5173
+npm run build            # tsc -b ואז vite build
+npm run preview          # הצגת הבנייה מקומית
+npm run check-types      # tsc -b
+npm run lint             # eslint
+```
+
+### מלכודות
+
+- **התקנת חבילה בזמן ששרת הפיתוח רץ** עלולה להפיל את האפליקציה בשגיאה שנראית כמו שני עותקים של React. זו למעשה שגיאת `optimizeDeps` של Vite. יש לכבות את השרת, להתקין, ולהעלות מחדש.
+- **סדר התוספים ב-Vite אינו שרירותי.** תוסף הראוטר חייב לרוץ לפני תוסף React: הוא כותב מחדש את קובצי המסלולים, ותוסף React חייב לראות את הגרסה הכתובה מחדש.
+- **סדר הזרקת ה-CSS של Leaflet.** גיליון הסגנונות של Leaflet מיובא מתוך רכיב המפה, ולכן Vite מזריק אותו אחרי `index.css`, ובסלקטיביות שווה הוא מנצח על סדר. לכן כל דריסה שלו תחומה תחת `.leaflet-container`. הפופאפ נצבע לבן עם טקסט אפור לפני שהתיקון הזה נכנס.
+- **לוחות Leaflet מצוירים ב-`z-index` בין 400 ל-700**, כלומר מעל כל שכבת-על באפליקציה. המכל מקבל הקשר ערימה משלו כדי לכלוא את המספרים האלה בפנים, אחרת דיאלוגים נפתחים מתחת למפה.
+- **הקובץ `routeTree.gen.ts` מיוצר.** אין לערוך אותו; הוא נכתב מחדש בכל הרצה של שרת הפיתוח.
+
+---
+
+## מצב הבדיקות
+
+**אין בלקוח בדיקות אוטומטיות** — לא יחידה, לא רכיב ולא מקצה לקצה. אין מריץ בדיקות מותקן.

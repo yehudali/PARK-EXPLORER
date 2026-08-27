@@ -1,98 +1,197 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# apps/api — שרת Park Explorer
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+שרת NestJS שחושף tRPC דרך `nestjs-trpc`, מעל Drizzle ומול Postgres.
+אין כאן controllers ואין REST: כל נקודות הקצה הן פרוצדורות tRPC תחת נתיב אחד, `/trpc`.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+מסמך זה מתאר את השרת בלבד. להקשר הכללי, למשתני הסביבה ולפקודות מהשורש — ראו את ה-README בשורש המונוריפו.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## מפה מהירה למי שמגיע מ-FastAPI
 
-## Project setup
+| NestJS                      | המקבילה ב-FastAPI                 |
+| --------------------------- | --------------------------------- |
+| `@Module`                   | הרכבת ראוטרים לתוך האפליקציה      |
+| `@Router` (מ-`nestjs-trpc`) | `APIRouter`                       |
+| `@Query` / `@Mutation`      | `@router.get` / `@router.post`    |
+| הזרקה דרך הבנאי             | `Depends()`                       |
+| Zod                         | Pydantic                          |
+| מידלוור tRPC                | `Depends` שרץ לפני, או middleware |
 
-```bash
-$ npm install
+ההבדל המהותי: אין נתיב לכל פעולה. שם הפרוצדורה בתוך ה-router **הוא** הכתובת, והחוזה נאכף בטיפוסים ולא במסמך.
+
+---
+
+## מבנה התיקיות
+
+```
+src/
+├── main.ts                    עליית האפליקציה, CORS, האזנה לפורט
+├── app.module.ts              המודול השורשי — כאן נרשמים TRPCModule והמידלוור הגלובלי
+├── config/
+│   └── config.ts              אימות .env בסכימת Zod → אובייקט config קפוא
+├── trpc/
+│   └── trpc.context.ts        בניית ההקשר לכל בקשה: כותרת ה-Authorization
+├── common/
+│   ├── domain.errors.ts       שגיאות הדומיין שמותר לשירותים לזרוק
+│   └── domain-errors.middleware.ts   התרגום היחיד שלהן לקודי tRPC
+├── database/
+│   ├── database.module.ts
+│   └── database.providers.ts  ספק החיבור, תחת האסימון DATABASE_CONNECTION
+├── auth/
+│   ├── auth.router.ts         register · login · me
+│   ├── auth.service.ts        לוגיקת ההרשמה, ההתחברות ושליפת המשתמש
+│   ├── auth.schemas.ts        חוזי הקלט והפלט
+│   ├── auth.middleware.ts     אימות הטוקן, והזרקת userId להקשר
+│   ├── password/              גיבוב ואימות סיסמה (bcrypt)
+│   └── token/                 חתימה ואימות JWT
+├── parks/                     router · service · schemas · module
+├── cities/                    router · service · schemas · module
+├── regions/                   router · service · schemas · module
+├── router/health/             בדיקת חיים
+└── @generated/
+    └── server.ts              חוזה ה-tRPC המיוצר. אין לערוך ידנית
 ```
 
-## Compile and run the project
+### הכלל שחוזר בכל תיקיית פיצ׳ר
 
-```bash
-# development
-$ npm run start
+שלוש שכבות, ותפקיד אחד לכל אחת:
 
-# watch mode
-$ npm run start:dev
+- **`*.schemas.ts`** — הגבול. סכימות Zod לקלט ולפלט, ומהן נגזרים הטיפוסים בעזרת `z.infer`. אין כאן לוגיקה.
+- **`*.router.ts`** — התעבורה. מקבל קלט מאומת, שולף `userId` מההקשר אם צריך, וקורא לשירות. אין כאן לוגיקה עסקית ואין גישה למסד.
+- **`*.service.ts`** — הלוגיקה. מקבל את החיבור למסד בהזרקה, וזורק שגיאות דומיין. **אינו יודע מה זה HTTP.** פונקציות מיוצאות למעלה, פרטיות למטה.
 
-# production mode
-$ npm run start:prod
+---
+
+## תהליך בקשה, מקצה לקצה
+
+```
+בקשה נכנסת
+    ↓
+TRPCContextService          קורא את כותרת Authorization לתוך ההקשר
+    ↓
+DomainErrorsMiddleware      גלובלי. עוטף את כל השאר
+    ↓
+AuthMiddleware              רק על פרוצדורות מסומנות. מאמת JWT,
+                            ומעשיר את ההקשר ב-userId
+    ↓
+Zod                         אימות הקלט מול הסכימה
+    ↓
+Router                      מפרק את הקלט, קורא לשירות
+    ↓
+Service                     לוגיקה + Drizzle. זורק שגיאת דומיין בכישלון
+    ↓
+Zod                         אימות הפלט מול הסכימה
+    ↓
+תשובה
 ```
 
-## Run tests
+### ההקשר
 
-```bash
-# unit tests
-$ npm run test
+הקובץ `trpc.context.ts` מחזיר אובייקט אחד בלבד — כותרת ה-`Authorization` הגולמית.
+המידלוור `AuthMiddleware` הוא זה שמפרק ממנה טוקן, מאמת אותו, ומחזיר הקשר מועשר ב-`userId`.
 
-# e2e tests
-$ npm run test:e2e
+הערה מעשית: הספרייה `nestjs-trpc` אינה מקלידה את צורת ההקשר בנקודות האלה, ולכן הקוד מבצע
+המרה מפורשת עם הערה צמודה. זו הצרה היחידה בשרשרת ההקלדה, והיא תחומה לשני מקומות: המידלוור,
+והדקורטור `@Ctx` בראוטרים.
 
-# test coverage
-$ npm run test:cov
+### שגיאות
+
+השירותים זורקים שגיאות דומיין בלבד, מתוך `common/domain.errors.ts`:
+
+| שגיאת דומיין        | קוד tRPC                |
+| ------------------- | ----------------------- |
+| `NotFoundError`     | `NOT_FOUND`             |
+| `ForbiddenError`    | `FORBIDDEN`             |
+| `ConflictError`     | `CONFLICT`              |
+| `UnauthorizedError` | `UNAUTHORIZED`          |
+| `InvalidInputError` | `BAD_REQUEST`           |
+| כל השאר             | `INTERNAL_SERVER_ERROR` |
+
+המידלוור `DomainErrorsMiddleware` הוא המקום היחיד בשרת שמכיר את שתי השפות.
+הוא רשום כ-`globalMiddlewares` ב-`app.module.ts`, ולכן חל על כל פרוצדורה בלי הצהרה חוזרת.
+
+נקודה שקל להיכשל בה: הקריאה ל-`next()` אינה זורקת. כישלון במורד הזרם חוזר כתוצאה, וכל מה
+שנזרק יושב בתוך `error.cause`. הקוד קורא משם, ולא מ-`try/catch`.
+
+---
+
+## אימות והרשאות
+
+- **סיסמה** — bcrypt, עשרה סבבי מלח. הגיבוב וההשוואה מרוכזים ב-`PasswordService`.
+- **טוקן** — JWT חתום ב-`JWT_SECRET`, תוקף **15 דקות**, מטען `{ sub: userId }`. אין רענון ואין רשימת שלילה.
+- **הרשמה** — בדיקת ייחודיות אימייל לפני ההוספה. התנגשות מוחזרת כ-`CONFLICT`.
+- **התחברות** — משתמש שלא נמצא וסיסמה שגויה מוחזרים שניהם כ-`UNAUTHORIZED`, בכוונה: התשובה אינה מסגירה אילו כתובות אימייל רשומות.
+- **בעלות** — הפונקציה `assertOwner` בתוך `ParksService` מפרידה בין "לא קיים" ל"לא שלך", ומחזירה `NOT_FOUND` או `FORBIDDEN` בהתאם. הכלל יושב בשירות, ולכן נשאר נכון גם בלי HTTP.
+
+מזהה היוצר מגיע **תמיד** מהטוקן המאומת, ומועבר כפרמטר נפרד לשירות. הוא לעולם אינו נקרא מגוף הבקשה, ולכן אין דרך לדרוס אותו דרך הקלט.
+
+---
+
+## שכבת הנתונים
+
+החיבור נוצר פעם אחת, במפעל, ומוזרק לפי אסימון:
+
+```
+CONNECT_TO_DB = 'DATABASE_CONNECTION'
 ```
 
-## Deployment
+השירותים תלויים בטיפוס `Database` שמיוצא מחבילת המסד, ולא בטיפוסים הפנימיים של Drizzle.
+כך שינוי בספרייה נשאר בגבולות החבילה.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+מוסכמות שחוזרות בשירות הפארקים:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **צורת פלט אחת.** כל שאילתת פארק מחזירה את כל עמודות הטבלה ועוד `cityName` מהצירוף. הצירוף קיים ממילא, ולכן סינון לפי מחוז אינו עולה טבלה נוספת.
+- **סינון מצטבר.** התנאים נאספים למערך, והקריאה `and(...conditions)` על מערך ריק מחזירה `undefined` — כלומר "בלי סינון" אינו דורש ענף נפרד בקוד.
+- **סדר יציב.** מיון לפי שם ואז לפי מזהה. בלי זה הסדר הוא מה שנוח למתכנן השאילתות, והרשימה מתערבבת מחדש בכל עדכון שורה.
+- **המרת זמנים.** Drizzle מחזיר עמודות חותמת כאובייקטי `Date`, וסכימת הפלט מבטיחה מחרוזות. ההמרה מרוכזת בפונקציה אחת.
+- **בדיקה מקדימה של עיר.** מפתח זר היה דוחה גם בלי זה, אבל כשגיאת מסד שהלקוח לא יכול לפעול לפיה. הבדיקה המוקדמת הופכת אותה ל-`BAD_REQUEST` בעל משמעות.
+
+---
+
+## פקודות
+
+מתוך `apps/api`:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run dev              # nest start --watch
+npm run build            # nest build → dist/
+npm run start:prod       # node dist/main
+npm run check-types      # tsc --noEmit
+npm run lint             # eslint --fix
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+```bash
+npx nestjs-trpc generate # מייצר מחדש את src/@generated/server.ts
+```
 
-## Resources
+הפקודה האחרונה חשופה גם מהשורש כ-`npm run trpc:generate`. **חובה להריץ אותה אחרי כל שינוי
+בדקורטור `@Query` או `@Mutation`, ואחרי כל שינוי שם או מיקום של קובץ סכימה.**
 
-Check out a few resources that may come in handy when working with NestJS:
+### מלכודות
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- **תהליכי watch יתומים.** עצירת שרת הפיתוח הורגת רק את התהליך הפנימי; העטיפה והצופה שורדים ומחזיקים את פורט 3000. נראה בדיוק כמו קריסה. אבחון:
 
-## Support
+  ```bash
+  netstat -ano | grep ":3000 " | grep -i LISTEN
+  ```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- **בנייה שקטה שלא פולטת דבר.** קובץ `tsconfig.tsbuildinfo` תקוע שורד את `deleteOutDir`. בנייה חשודה במהירותה — בדקו אותו.
+- **החבילה `@park-explorer/db` נצרכת בנויה.** שינוי סכימה שאינו נראה כאן — בדקו שהוא קיים ב-`packages/db/dist`.
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## מצב הבדיקות
 
-## License
+תשתית Jest מוגדרת ב-`package.json`, וקיימות הפקודות `test`, `test:watch`, `test:cov` ו-`test:e2e`.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+**אין בפרויקט אף קובץ בדיקה.** אין `*.spec.ts`, אין תיקיית `test/`, ולכן `npm test` ירוץ על אפס
+בדיקות ו-`npm run test:e2e` ייכשל על קובץ תצורה חסר. הפקודות נשארו כדי שיהיה קל להתחיל — לא כדי לרמוז שיש כיסוי.
+
+---
+
+## תצורה
+
+- **`nest-cli.json`** — `deleteOutDir: true`. שימו לב שזה אינו מנקה קובץ `tsbuildinfo` שיושב מחוץ ל-`dist`.
+- **`tsconfig.json`** — `nodenext`, יעד ES2023, דקורטורים ניסיוניים ומטא-דאטה של טיפוסים (חובה להזרקה של Nest). מופעל `strictNullChecks` אך **לא** `strict` מלא: `noImplicitAny` מכובה. זו ברירת המחדל של תבנית Nest ולא הכרעה של הפרויקט — כדאי לדעת לפני שמסתמכים על "הכול קפדני".
+- **CORS** — `app.enableCors()` בלי ארגומנטים, כלומר כל מקור מותר. מתאים לפיתוח, לא לייצור.
