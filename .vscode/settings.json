@@ -1,0 +1,23 @@
+{
+  // Tailwind 4 puts its own at-rules in the stylesheet - @theme, @custom-variant,
+  // @apply. The editor's built-in CSS language server does not know them and
+  // marks each one as an unknown rule. They are valid; the warning is not.
+  "css.lint.unknownAtRules": "ignore",
+
+  // Use the workspace's TypeScript, not the one bundled with the editor. The
+  // app compiles with 6.x while the repo root still has 5.x, and the two
+  // disagree about defaults - which is what put red marks on working code.
+  "typescript.tsdk": "apps/web/node_modules/typescript/lib",
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "js/ts.tsdk.path": "apps/web/node_modules/typescript/lib",
+
+  // Off because the only files that still trigger it are the generated shadcn
+  // components, which we do not edit by hand and which the CLI overwrites - so
+  // the warning can never be acted on. Our own code is already canonical, and
+  // the D.7 review pass catches drift without the extension. Delete this line
+  // to turn the hints back on.
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore"
+}

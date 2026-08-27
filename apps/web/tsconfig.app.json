@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    // Explicit, not inherited: TypeScript 6 turns this on by default and 5.x
+    // does not, so leaving it out makes the project mean different things to
+    // different tools. The router's types collapse without strictNullChecks.
+    "strict": true,
     "target": "es2023",
     "lib": ["ES2023", "DOM"],
     "module": "esnext",
