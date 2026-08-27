@@ -119,9 +119,15 @@
 
 /* Leaflet's popup and attribution ship with their own light-only chrome. These
    rules hand both back to the app's palette so dark mode is not half applied.
-   The width on .leaflet-popup-content is set inline by Leaflet, which is why
-   this one needs the override. */
-.leaflet-popup-content-wrapper {
+
+   Every one of them is scoped under .leaflet-container on purpose. Leaflet's
+   own stylesheet is imported from the map component, so Vite injects it after
+   this file - at equal specificity it therefore wins on order alone, and the
+   plain single-class versions of these rules silently lost. That left the popup
+   painted white with #333 text, which in dark mode put the park name at roughly
+   1.2:1 against the card behind it. The extra class is what makes ours win
+   regardless of injection order. */
+.leaflet-container .leaflet-popup-content-wrapper {
   background: var(--popover);
   color: var(--popover-foreground);
   border: 1px solid var(--border);
@@ -134,13 +140,13 @@
    defeats the Popup's own minWidth, and the card collapses to about half the
    width it asked for - a name breaking across three lines. The floor restores
    what minWidth was meant to guarantee; keep the two in step. */
-.leaflet-popup-content {
+.leaflet-container .leaflet-popup-content {
   margin: 0.5rem;
   width: auto !important;
   min-width: 14rem;
 }
 
-.leaflet-popup-tip {
+.leaflet-container .leaflet-popup-tip {
   background: var(--popover);
   border: 1px solid var(--border);
 }
@@ -155,11 +161,11 @@
   background: transparent;
 }
 
-.leaflet-control-attribution {
+.leaflet-container .leaflet-control-attribution {
   background: var(--card);
   color: var(--muted-foreground);
 }
 
-.leaflet-control-attribution a {
+.leaflet-container .leaflet-control-attribution a {
   color: var(--muted-foreground);
 }
