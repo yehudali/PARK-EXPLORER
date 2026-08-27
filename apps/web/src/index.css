@@ -129,9 +129,15 @@
   padding: 0;
 }
 
+/* Leaflet writes a pixel width here inline, measured before the React card has
+   laid out, so the override hands sizing back to CSS. On its own though it also
+   defeats the Popup's own minWidth, and the card collapses to about half the
+   width it asked for - a name breaking across three lines. The floor restores
+   what minWidth was meant to guarantee; keep the two in step. */
 .leaflet-popup-content {
   margin: 0.5rem;
   width: auto !important;
+  min-width: 14rem;
 }
 
 .leaflet-popup-tip {
