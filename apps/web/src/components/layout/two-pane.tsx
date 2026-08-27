@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
-// The main screen is two panes from day one. Stage E fills the right one with
-// the map; until then it is deliberately empty rather than absent, so the
-// layout is not rebuilt later.
+// The main screen is two panes from day one, which is why the right one held an
+// empty placeholder rather than being absent before Stage E filled it with the
+// map - the layout never had to be rebuilt.
 export function TwoPane({ left, right }: { left: ReactNode; right: ReactNode }) {
   return (
     <div className="flex h-full min-h-0">

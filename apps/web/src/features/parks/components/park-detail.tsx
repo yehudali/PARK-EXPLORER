@@ -3,7 +3,13 @@ import { Link } from '@tanstack/react-router'
 import { ArrowLeft, CalendarDays, MapPin, User } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { ParkMap } from '@/features/map/components/park-map'
 import type { ParkDetail as ParkDetailData } from '../types'
+
+// The map takes a selection handler because the main screen needs one. Here
+// there is one park and it is always the selected one, so there is nothing for
+// a click to change.
+const noSelectionChange = () => {}
 
 function formatDate(isoDate: string) {
   // The server sends a plain date string and there is no converter on the way
@@ -81,8 +87,20 @@ export function ParkDetail({
         <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
           Location
         </span>
-        <div className="flex flex-wrap items-center justify-between gap-6 rounded-lg border bg-card p-4">
-          <div className="flex gap-8">
+        <div className="overflow-hidden rounded-lg border bg-card">
+          {/* Leaflet measures this box the moment it initialises, so the height
+              has to be a real number here rather than something the content
+              decides. A box with no height of its own makes a map of zero size
+              that stays that way. */}
+          <div className="h-64 w-full sm:h-80">
+            <ParkMap
+              parks={[park]}
+              selectedId={park.id}
+              onSelect={noSelectionChange}
+            />
+          </div>
+
+          <div className="flex gap-8 border-t p-4">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">Latitude</span>
               <span className="text-sm font-medium tabular-nums">
@@ -96,9 +114,6 @@ export function ParkDetail({
               </span>
             </div>
           </div>
-          <span className="max-w-64 text-xs leading-relaxed text-muted-foreground">
-            A map preview replaces these numbers in Stage E.
-          </span>
         </div>
       </div>
 
