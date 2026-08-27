@@ -4,7 +4,7 @@ import {
   InvalidInputError,
   NotFoundError,
 } from '../common/domain.errors';
-import { and, eq, getTableColumns, ilike, type SQL } from 'drizzle-orm';
+import { and, asc, eq, getTableColumns, ilike, type SQL } from 'drizzle-orm';
 import type { Database } from '@park-explorer/db';
 import { parks, cities } from '@park-explorer/db/schema';
 import { CONNECT_TO_DB } from '../database/database.providers';
@@ -51,7 +51,12 @@ export class ParksService {
       .innerJoin(cities, eq(parks.cityId, cities.id))
       // and() of an empty list is undefined, and where(undefined) filters
       // nothing - so no filter needs no separate branch.
-      .where(and(...conditions));
+      .where(and(...conditions))
+      // Without this the order is whatever the planner finds convenient, and it
+      // changes whenever a row is updated - so the list reshuffles for reasons
+      // the user cannot see. Name is the order a browsable list is expected in;
+      // id breaks ties so the sort is total and the order is fully repeatable.
+      .orderBy(asc(parks.name), asc(parks.id));
 
     return rows.map((row) => this.toPark(row));
   }
