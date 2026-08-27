@@ -108,6 +108,15 @@
   z-index: 0;
 }
 
+/* The tile provider has no dark basemap, so dark mode is made here rather than
+   fetched. Scoped to the tile pane alone: markers, boundaries, popups and
+   controls live in other panes and have to keep their real colours. Inverting
+   and then rotating the hue back by half the circle is what keeps parks green
+   and water blue instead of turning the map into a photographic negative. */
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9);
+}
+
 /* Leaflet's popup and attribution ship with their own light-only chrome. These
    rules hand both back to the app's palette so dark mode is not half applied.
    The width on .leaflet-popup-content is set inline by Leaflet, which is why

@@ -13,18 +13,17 @@ export const FOCUS_ZOOM = 15
 export const FOCUS_DURATION = 0.6
 export const FOCUS_PADDING: [number, number] = [48, 48]
 
-// E3: CARTO basemaps. No key to manage, a dark variant that matches the app's
-// own dark mode, and a pale style that leaves the parks the loudest thing on
-// screen. The attribution is a licence condition, not decoration.
-export const TILE_URL = {
-  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-} as const
+// E3, revised mid-stage: CARTO began demanding an API key for its basemaps and
+// stamped every tile with a watermark, so the provider had to change. OSM's
+// standard tiles need no key - but they ship no dark variant either, so there
+// is one url for both themes and dark mode is a filter over the tile pane in
+// index.css rather than a second url fetched from somewhere.
+export const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
 export const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 
-export const TILE_SUBDOMAINS = 'abcd'
+export const TILE_SUBDOMAINS = 'abc'
 export const TILE_MAX_ZOOM = 20
 
 // Leaflet writes these onto the SVG as presentation attributes, and var() is

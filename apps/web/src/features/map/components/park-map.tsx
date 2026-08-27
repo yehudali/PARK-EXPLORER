@@ -56,10 +56,12 @@ export function ParkMap({ parks, selectedId, onSelect }: ParkMapProps) {
       scrollWheelZoom
       className="h-full w-full bg-muted"
     >
-      {/* The url is updated in place when the theme flips, so the tiles swap
-          without the map being torn down and rebuilt. */}
+      {/* One url for both themes. The provider has no dark basemap, so the dark
+          variant is made in CSS over the tile pane - see index.css. isDark below
+          still drives the marker and boundary colours, which are real values
+          Leaflet writes onto the SVG and cannot be filtered into place. */}
       <TileLayer
-        url={isDark ? TILE_URL.dark : TILE_URL.light}
+        url={TILE_URL}
         attribution={TILE_ATTRIBUTION}
         subdomains={TILE_SUBDOMAINS}
         maxZoom={TILE_MAX_ZOOM}
