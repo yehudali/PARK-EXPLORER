@@ -249,8 +249,7 @@ export function ParkFormDialog({
                 </Field>
               </div>
               <FieldDescription>
-                Temporary. Stage E replaces these two fields with a pick on the
-                map; everything else on this form stays.
+                Decimal degrees, as they appear on the park detail screen.
               </FieldDescription>
             </Field>
           </FieldGroup>
